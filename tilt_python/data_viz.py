@@ -119,6 +119,10 @@ for i in range(1,len(dir_paths_max_h)):
         max_h_data_set = max_h_data_set.append(dummy_max_h,ignore_index=True)
         big_data_set = big_data_set.append(dummy_bd,ignore_index=True)
 
+max_h_data_set = max_h_data_set.sort_values(by=['Tilt [deg]'])#.reset_index(drop=True)
+order = max_h_data_set.index
+max_h_data_set = max_h_data_set.reset_index(drop=True)
+big_data_set = big_data_set.reindex(order).reset_index(drop=True)
 # constants
 unit_length = 1e9  # cm
 DOMIAN = [5*unit_length, 3*unit_length]
@@ -154,12 +158,12 @@ unit_specific_energy = (unit_length/unit_time)**2
 dt = unit_time/20
 #dt = unit_time/200 # high dt
 plot_h_vs_t = False
-plot_w_vs_t = False
 all_data = False # plotss all data as suppose to small selection 
+plot_w_vs_t = True
 plot_error_bars = False
 plot_hmax_vs_B = False
 plot_hmax_vs_A = False
-plot_mean_w_vs_tilt = False
+plot_mean_w_vs_tilt = True
 power_law_fit = False
 plot_hmax_vs_dt = False
 data_check = False
@@ -431,7 +435,7 @@ data_mean_w = []
 if plot_w_vs_t == True:
     i = 0
     t_max = 0
-    w_root_dir = 'width_graphs'
+    w_root_dir = 'sharc_run/width_graphs'
     if not os.path.exists(w_root_dir):
         os.makedirs(w_root_dir)
     for idx in range(len(big_data_set)):
@@ -497,7 +501,8 @@ if plot_w_vs_t == True:
         # data lies here: /tilt_python/c_data
         fig, ax = plt.subplots(figsize=(20, 12))
         if c_data == True:
-            path2_c_data = glob.glob('c_data/'+jet_word_search)
+            path2_c_data = glob.glob('sharc_run/c_data/'+jet_word_search)
+            path2_c_data = [path2_c_data[i] for i in order]
             c_width = []
             tilt_deg = []
             for cdex, cdata_name in enumerate(path2_c_data):
