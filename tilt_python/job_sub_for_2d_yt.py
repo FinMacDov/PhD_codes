@@ -36,7 +36,7 @@ dir_paths =  glob.glob(path_2_shared_drive+'/T/P300/B60/A60/T*')
 # testing 
 #dir_paths = [dir_paths[0]]
 
-
+# testing back software with this comment
 script_path = '/shared/mhd_jet1/User/smp16fm/j/tilt_python/2d_yt_plots_for_paper_sharc.py'
 path_2_sub_dir = '/yt_plot_sub_dir_tilt' 
 email = 'fmackenziedover1@sheffield.ac.uk'
