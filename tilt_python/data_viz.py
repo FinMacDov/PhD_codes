@@ -97,7 +97,27 @@ path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk
 ##data set for paper
 #dir_paths =  glob.glob('big_data/run1/*')
 # run2 is standard jet runs 
-dir_paths =  glob.glob('big_data/run2/*')
+#dir_paths =  glob.glob('big_data/run2/*')
+# how to read pickels
+#max_h_data_set = pd.read_pickle(dir_paths[1])
+#big_data_set = pd.read_pickle(dir_paths[0])
+
+dir_paths_max_h =  glob.glob('sharc_run/jet_B60_A60_T*/max_h_data*')
+dir_paths_big_data = glob.glob('sharc_run/jet_B60_A60_T*/big_data*')
+
+dummy_max_h0 = pd.read_pickle(dir_paths_max_h[0])
+dummy_bd0 = pd.read_pickle(dir_paths_big_data[0])
+first_append = True
+for i in range(1,len(dir_paths_max_h)):
+    dummy_max_h = pd.read_pickle(dir_paths_max_h[i])
+    dummy_bd = pd.read_pickle(dir_paths_big_data[i])
+    if first_append == True:
+        first_append = False
+        max_h_data_set = dummy_max_h0.append(dummy_max_h,ignore_index=True)
+        big_data_set = dummy_bd0.append(dummy_bd,ignore_index=True)
+    else:
+        max_h_data_set = max_h_data_set.append(dummy_max_h,ignore_index=True)
+        big_data_set = big_data_set.append(dummy_bd,ignore_index=True)
 
 # constants
 unit_length = 1e9  # cm
@@ -154,10 +174,6 @@ jet_word_search = 'jet_P300_B60_A60_T*/*'
 apex_vs_tile = True
 
 lw =  3# 2.5#  
-
-# how to read pickels
-max_h_data_set = pd.read_pickle(dir_paths[1])
-big_data_set = pd.read_pickle(dir_paths[0])
 
 # max_h_data_set.plot(x ='amplitude [km s-1]', y='max height [Mm]', kind = 'scatter')
 # test = [ind for ind, i in enumerate(big_data_set['idx']) if sum(i-[50, 60, 20])==0]
