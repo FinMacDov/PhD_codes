@@ -502,7 +502,9 @@ if plot_w_vs_t == True:
         fig, ax = plt.subplots(figsize=(20, 12))
         if c_data == True:
             path2_c_data = glob.glob('sharc_run/c_data/'+jet_word_search)
-            path2_c_data = [path2_c_data[i] for i in order]
+            tilt_nb = [int(path2_c_data[i].split('_')[-2][1:]) for i in range(len(path2_c_data))]
+            tilt_order_index = np.argsort(tilt_nb)
+            path2_c_data = [path2_c_data[i] for i in tilt_order_index]
             c_width = []
             tilt_deg = []
             for cdex, cdata_name in enumerate(path2_c_data):
