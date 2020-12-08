@@ -22,13 +22,17 @@ out_extension='avi'
 #search_image_word = '/t_*/*run*'
 #search_file_word = 'jet_P200_B50_A40_T15_'
 
-movie_name = 'den_mov'
-search_image_word = '/t_*/*den*'
+#movie_name = 'den_mov'
+#search_image_word = '/t_*/*den*'
+#search_file_word = 'jet_P300_B60_A60_T*'
+movie_name = 'width_track_mov'
+search_image_word = '/*'
 search_file_word = 'jet_P300_B60_A60_T*'
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm'    
 # 2D
-path_root = '/j/tilt_python/'
+#path_root = '/j/tilt_python/sharc_run/yt_images/'
+path_root = '/j/tilt_python/sharc_run/image_check/'
 file_paths = glob.glob(path_2_shared_drive+path_root+search_file_word)
 
 for file in file_paths:
@@ -48,15 +52,14 @@ for file in file_paths:
     path_2_images = glob.glob(file_path)
     number_list = []
     for fname in path_2_images:
-#        number_list.append(int(fname.split('_')[-1].split('.')[0]))
-        number_list.append(int(fname.split('_')[-4][7:]))
-    
+        number_list.append(int(fname.split('_')[-1].split('.')[0]))
+#        number_list.append(int(fname.split('_')[-4][-4:]))
     sorted_index = np.argsort(number_list)
     path_2_images = np.asarray(path_2_images)[sorted_index]
     
-#    jet_name = file_path.split('/')[-2]
-    jet_name = file_path.split('/')[-3]
-    save_dir = 'movies/'+jet_name
+    jet_name = file_path.split('/')[-2]
+#    jet_name = file_path.split('/')[-3]
+    save_dir = 'sharc_run/yt_images/movies/'+jet_name
     Path(save_dir).mkdir(parents=True, exist_ok=True)    
     
     img_array = []
