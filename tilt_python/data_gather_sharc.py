@@ -216,9 +216,9 @@ unit_mass = unit_density*unit_length**3
 unit_specific_energy = (unit_length/unit_time)**2
 
 # otpions
-testing = True
+testing = False
 plotting_on = False
-data_save = False
+data_save = True
 # NOTE: if name already there it will append to file
 max_h_data_fname = code_root + '/' + jet_fname + '/max_h_data_sj_p2.dat'
 big_data_fname = code_root + '/'+jet_fname + '/big_data_set_sj_p2.dat'
@@ -265,6 +265,7 @@ big_data_indexs = []
 for path in dir_paths:
     FIRST = True
     data_c_first = True
+    JL_data_first = True
     h_check = 0
     path_parts = path.split('/')
     path_parts = path_parts[-4:]
@@ -467,6 +468,20 @@ for path in dir_paths:
     #            jet_length = sum(p2p_dis)                
                 jet_length = p2p_dis_array[-1][0] 
     #            print(jet_length)
+                if data_save == True:
+                    df_JL_data = pd.DataFrame([[jet_length, physical_time]],
+                                              columns=['Jet length [Mm]',
+                                                       'Time [s]'])
+                    if JL_data_first:
+                        data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
+                        Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
+                        df_JL_data.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+'df_jl.csv', 
+                                          index = False, columns=['Jet length [Mm]',
+                                                                  'Time [s]'])
+                        JL_data_first = False
+                    else:
+                        df_JL_data.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+'df_jl.csv', 
+                                          mode='a', index = False, header=None)
                 #-------------------------------------------
                 if method_1 == True:
                     # trying method of avg angles
