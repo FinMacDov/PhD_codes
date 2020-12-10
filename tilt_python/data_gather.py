@@ -218,7 +218,7 @@ unit_specific_energy = (unit_length/unit_time)**2
 # otpions
 testing = True
 plotting_on = False
-data_save = False
+data_save = True
 # NOTE: if name already there it will append to file
 max_h_data_fname = 'max_h_data_sj_p2.dat'
 big_data_fname = 'big_data_set_sj_p2.dat'
@@ -264,6 +264,7 @@ big_data_indexs = []
 for path in dir_paths:
     FIRST = True
     data_c_first = True
+    JL_data_first = True
     h_check = 0
     path_parts = path.split('/')
     path_parts = path_parts[2:]
@@ -278,7 +279,7 @@ for path in dir_paths:
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'_'+path_parts[3]+'_*.vtu')
     # skip first step as no value
 #    full_paths = full_paths[1:]
-    full_paths = full_paths[135:138]
+    full_paths = full_paths[132:135]
 #    full_paths = full_paths[15:18]
    
     sub_data_1 = []
@@ -463,8 +464,22 @@ for path in dir_paths:
                     p2p_dis_array[i,0] = sum(p2p_dis[:i+1])
     
     #            jet_length = sum(p2p_dis)                
-                jet_length = p2p_dis_array[-1][0] 
-    #            print(jet_length)
+                jet_length = p2p_dis_array[-1][0]
+    #            print(jet_length)                
+                if data_save == True:
+                    df_JL_data = pd.DataFrame([[jet_length, physical_time]],
+                                              columns=['Jet length [Mm]',
+                                                       'Time [s]'])
+                    if JL_data_first:
+                        data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
+                        Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
+                        df_JL_data.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+'df_jl.csv', 
+                                          index = False, columns=['Jet length [Mm]',
+                                                                  'Time [s]'])
+                        JL_data_first = False
+                    else:
+                        df_JL_data.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+'df_jl.csv', 
+                                          mode='a', index = False, header=None)
                 #-------------------------------------------
                 if method_1 == True:
                     # trying method of avg angles
@@ -550,27 +565,27 @@ for path in dir_paths:
                                           tilt_widths, physical_time))
                             if data_save == True:
                                 df_dc = pd.DataFrame([data_c],
-                                                     columns=['driver time [s]',
-                                                              'magnetic field strength [B]',
-                                                              'amplitude [km/s]',
-                                                              'tilt angle [degree]',
-                                                              'jet length [Mm]',
-                                                              'jet height [Mm]',
-                                                              'jet width [Mm]',
-                                                              'time [s]'])
+                                                     columns=['Driver time [s]',
+                                                              'Magnetic field strength [B]',
+                                                              'Amplitude [km/s]',
+                                                              'Tilt angle [degree]',
+                                                              'Jet length [Mm]',
+                                                              'Jet height [Mm]',
+                                                              'Jet width [Mm]',
+                                                              'Time [s]'])
                                 if data_c_first == True:
             #                        print('writting')
                                     data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
                                     Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
                                     df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name, 
-                                                 index = False, columns=['driver time [s]',
-                                                                         'magnetic field strength [B]',
-                                                                         'amplitude [km/s]',
-                                                                         'tilt angle [degree]',
-                                                                         'jet length [Mm]',
-                                                                         'jet height [Mm]',
-                                                                         'jet width [Mm]',
-                                                                         'time [s]'])
+                                                 index = False, columns=['Driver time [s]',
+                                                                         'Magnetic field strength [B]',
+                                                                         'Amplitude [km/s]',
+                                                                         'Tilt angle [degree]',
+                                                                         'Jet length [Mm]',
+                                                                         'Jet height [Mm]',
+                                                                         'Jet width [Mm]',
+                                                                         'Time [s]'])
                                     data_c_first = False
                                 else:
                                     df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
