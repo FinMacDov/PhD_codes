@@ -78,9 +78,9 @@ def ballistic_flight(v0, g, t):
 degree_sign= u'\N{DEGREE SIGN}'
 i = 0
 shuff = 0
-SMALL_SIZE = 14
-MEDIUM_SIZE = 16
-BIGGER_SIZE = 18
+SMALL_SIZE = 28
+MEDIUM_SIZE = 32
+BIGGER_SIZE = 34
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
@@ -159,11 +159,11 @@ dt = unit_time/20
 #dt = unit_time/200 # high dt
 plot_h_vs_t = False
 all_data = False # plotss all data as suppose to small selection 
-plot_w_vs_t = True
+plot_w_vs_t = False
 plot_error_bars = False
 plot_hmax_vs_B = False
 plot_hmax_vs_A = False
-plot_mean_w_vs_tilt = True
+plot_mean_w_vs_tilt = False
 power_law_fit = False
 plot_hmax_vs_dt = False
 data_check = False
@@ -173,9 +173,11 @@ sf = [0.55, 0.55, 0.5, 0.5]
 plot_mean_w_vs_BAdt = False
 test_balstic = False
 Decelleration_analysis = False
-c_data = True
-jet_word_search = 'jet_P300_B60_A60_T*/*'
-apex_vs_tile = True
+c_data = False
+jet_word_search = 'jet_P300_B60_A60_T*/*data.csv'
+jl_jet_word_search = 'jet_P300_B60_A60_T*/*jl.csv'
+apex_vs_tile = False
+plot_cdata_LA = True
 
 lw =  3# 2.5#  
 
@@ -278,6 +280,45 @@ spear_list = []
 decell_array = []
 vmax_array = []
 predicted_decell_array = []
+
+if plot_cdata_LA:
+    fig, ax = plt.subplots(figsize=(20,12))
+    path2_c_data = glob.glob('sharc_run/c_data/'+jl_jet_word_search)
+    tilt_nb = [int(path2_c_data[i].split('_')[-3][1:]) for i in range(len(path2_c_data))]
+    tilt_order_index = np.argsort(tilt_nb)
+    path2_c_data = [path2_c_data[i] for i in tilt_order_index]
+    tilt_nb = [tilt_nb[i] for i in tilt_order_index]
+    jet_length_max = []
+    tilt_deg = []
+    i=0
+    for cdex, cdata_name in enumerate(path2_c_data):
+        i = i % len(colors)
+        j = i % len(styles_alt)
+        if i ==0: styles_alt = [styles_alt[-1]]+styles_alt[:-1]
+        dumb_file = pd.read_csv(cdata_name)
+        ax.plot(dumb_file['Time [s]'], dumb_file['Jet length [Mm]'],
+                label=r'$\theta=$'+str(tilt_nb[cdex])+degree_sign, 
+                color=colors[i], linestyle=styles_alt[j], linewidth=lw)
+        jet_length_max.append(dumb_file['Jet length [Mm]'].max())
+        i += 1        
+    ax.legend(fontsize=24)
+    ax.set_ylim(0,8) 
+    plt.xlabel('Time [s]', fontsize=32)
+    plt.ylabel('Height [Mm]', fontsize=32)
+    ax.tick_params(axis='both', which='major', labelsize=28)
+    ax.tick_params(axis='both', which='minor', labelsize=28)
+    fig.savefig('sharc_run/fig_for_paper/'+'JL_vs_t'+'.png')
+    plt.close()
+
+    fig, ax = plt.subplots(figsize=(20,12))
+    ax.plot(tilt_nb, jet_length_max, '-k', marker='o', markersize=20,
+                linewidth=5)
+    plt.xlabel('Tilt [' + degree_sign + ']')
+    plt.ylabel('Max length [Mm]')
+    ax.set_ylim(4,8) 
+    fig.savefig('sharc_run/fig_for_paper/'+'Tdeg_vs_JL_max'+'.png')
+    plt.close()
+        
 
 if plot_h_vs_t == True:
     i=0
