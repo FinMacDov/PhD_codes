@@ -16,8 +16,8 @@ path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #        'jet_P300_B50_A40_T60_']
 
 name = ['jet_P300_B60_A60_T0_', 'jet_P300_B60_A60_T5_', 
-        'jet_P300_B60_A60_T10_', 'jet_P300_B60_A60_T15_',
-        'jet_P300_B60_A60_T20_']
+        'jet_P300_B60_A60_T10_', 'jet_P300_B60_A60_T15_']
+#        'jet_P300_B60_A60_T20_']
 
 
 #indexs_of_interest = np.array([10,30,50,70,90,110])
@@ -28,13 +28,14 @@ indexs_of_interest = np.array([10,30,60,80,110,129])
 #indexs_of_interest = np.linspace(1,23,8,dtype=int)
 
 #indexs_of_interest = np.linspace(1,23,8,dtype=int)
-nb_of_images_per_plot = 5
-save_dir = 'fig_for_paper/'
+nb_of_images_per_plot = 4
+save_dir = '/tilt_python/sharc_run/yt_images/fig_for_pres'
+#save_dir = 'fig_for_paper/'
 Path_creator(save_dir).mkdir(parents=True, exist_ok=True)
-
 list_of_dirs = []
 for name_path in name:
-    dir_2_image = path_2_shared_drive+'/j/tilt_python/'+name_path
+#    dir_2_image = path_2_shared_drive+'/j/tilt_python/'+name_path
+    dir_2_image = path_2_shared_drive+'/j/tilt_python/sharc_run/yt_images'+name_path
     dummy_list_of_dirs = np.asarray(glob.glob(dir_2_image+'/*'))
     list_of_dirs.append(dummy_list_of_dirs[indexs_of_interest])
 set_cound=1
@@ -56,7 +57,7 @@ word_search_1 = 'den'
 word_search_2 = word_search_1
 word_search_3 = word_search_1
 
-number_of_vstacks = 2
+number_of_vstacks = 1
 side_stack = [] 
 h_stack = []
 
