@@ -106,14 +106,39 @@ for HoI in heights:
     for file in file_oI:
         tilt_list.append(int(file.split('/')[-3].split('T')[-1]))
     file_oI = file_oI[np.argsort(tilt_list)] 
+    time_2d_grid_coll = []
+    x_2d_grid_coll = []
+    rho_2d_grid_coll = []
+    pic_idx_first = True
     for pic_idx in image_range:
+        df = pd.read_csv(file_oI[pic_idx])
+        heading_names = list(df)
+        one_data_len = np.argwhere(np.diff(df['time [s]'])>0,)[0][0]+1 
+        grid_dims = [int(df['time [s]'].size/one_data_len), one_data_len]
+        time_2d_grid = np.reshape(df[heading_names[0]].values, grid_dims)
+        x_2d_grid = np.reshape(df[heading_names[1]].values, grid_dims)
+        rho_2d_grid = np.reshape(df[heading_names[2]].values, grid_dims)
+        if pic_idx_first:
+            col_time_2d_grid = time_2d_grid
+            col_x_2d_grid = x_2d_grid
+            col_rho_2d_grid = rho_2d_grid
+            pic_idx_first = False
+        else:
+            col_time_2d_grid = np.vstack((col_time_2d_grid,time_2d_grid))
+            col_x_2d_grid = np.vstack((col_x_2d_grid,x_2d_grid))
+            col_rho_2d_grid = np.vstack((col_rho_2d_grid,rho_2d_grid))
         pass # selct images for td plots
-    
-    
+    f, ax = plt.subplots(figsize=f_size)
+    f.set_size_inches(32, 18)
+    im = ax.pcolormesh(col_x_2d_grid, col_time_2d_grid,
+                             col_rho_2d_grid, cmap=cmap_array[0])#, vmin=0, vmax=cbar_den_lims[HoI])
+    cb = f.colorbar(im, ax=ax)
+    cb.set_label(label='Density [kg m-3]')
+    ax.set_ylabel('Time [s]')
 
 
 
-
+scsdz
 for fname in file_names:
     fgdfgdf
 #    name_parts =  fname.split('_')[:-1]
