@@ -37,7 +37,7 @@ name = [ 'jet_P300_B60_A60_T5',
         'jet_P300_B60_A60_T50', 'jet_P300_B60_A60_T55',
         'jet_P300_B60_A60_T60']
 
-HoI = 1
+HoI = 2
 save_dir = 'sharc_run/fig_for_paper/'
 Path_creator(save_dir).mkdir(parents=True, exist_ok=True)
 
@@ -48,12 +48,17 @@ for name_path in name:
     list_of_dirs.append(dir_2_image)
 
 f, ax = plt.subplots()
-f.set_size_inches(32, 18)
+f.set_size_inches(64, 36)
+#f.set_size_inches(32, 18)
+#makes it worse
+#f.set_size_inches(16, 9)
 
 stack_of_images = make_array(list_of_dirs)
 result = gallery(stack_of_images)
 plt.axis('off')
 plt.imshow(result)
-plt.show()
+f.savefig('ugly_td_plot/'+str(HoI)+'Mm.png', bbox_inches='tight')
+f.clf()
+plt.close()
 #plt.savefig(save_dir+name[idx]+marker+'.png', bbox_inches='tight',
 #            format='png', dpi=800, pad_inches = 0)
