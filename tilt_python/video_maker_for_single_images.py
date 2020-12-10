@@ -25,14 +25,16 @@ out_extension='avi'
 #movie_name = 'den_mov'
 #search_image_word = '/t_*/*den*'
 #search_file_word = 'jet_P300_B60_A60_T*'
-movie_name = 'width_track_mov'
-search_image_word = '/*'
-search_file_word = 'jet_P300_B60_A60_T*'
+#movie_name = 'width_track_mov'
+movie_name = 'jet_P300_B60_A60_T_0_15_30_45'
+search_image_word = 'jet_P300_B60_A60_T*'
+search_file_word = ''
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm'    
 # 2D
 #path_root = '/j/tilt_python/sharc_run/yt_images/'
-path_root = '/j/tilt_python/sharc_run/image_check/'
+#path_root = '/j/tilt_python/sharc_run/image_check/'
+path_root = '/j/tilt_python/sharc_run/yt_images/figs_for_pres/jet_P300_B60_A60_T_0_15_30_45/'
 file_paths = glob.glob(path_2_shared_drive+path_root+search_file_word)
 
 for file in file_paths:
@@ -57,9 +59,9 @@ for file in file_paths:
     sorted_index = np.argsort(number_list)
     path_2_images = np.asarray(path_2_images)[sorted_index]
     
-    jet_name = file_path.split('/')[-2]
+#    jet_name = file_path.split('/')[-2]
 #    jet_name = file_path.split('/')[-3]
-    save_dir = 'sharc_run/yt_images/movies/'+jet_name
+    save_dir = 'sharc_run/yt_images/movies/'+movie_name
     Path(save_dir).mkdir(parents=True, exist_ok=True)    
     
     img_array = []
@@ -69,7 +71,7 @@ for file in file_paths:
         size = (width, height)
         img_array.append(img)
     
-    out = cv2.VideoWriter(save_dir+'/'+jet_name+movie_name+'.avi',cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+    out = cv2.VideoWriter(save_dir+'/'+movie_name+'.avi',cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
      
     for i in range(len(img_array)):
         out.write(img_array[i])
