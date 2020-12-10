@@ -74,6 +74,8 @@ tilt = ['T0','T5','T10','T15','T20','T25', 'T30', 'T35', 'T40', 'T45', 'T50', 'T
 #Amp = ['A20','A40','A60','A80']
 #tilt = ['T5','T10','T15','T45','T60']
 
+cbar_den_lims = [2e-7, 1.5e-7, 1.5e-7, 1.0e-7]
+y_lmb_ul = [550, 500, 500, 450]
 sim_nbs = len(tilt)*len(driver_time)*len(mag_str)*len(Amp)
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j/'
@@ -98,7 +100,8 @@ for fname in file_names:
 #    join_name = '_'.join([fi for fi in name_parts])
 
     path_td_data = 'sharc_run/td_plots_data_sj/'+fname
-    h_range = glob.glob(path_td_data+'/*')
+#    h_range = glob.glob(path_td_data+'/*')
+    h_range = glob.glob(path_td_data+'/2Mm')
     for HoI in range(len(h_range)):
         save_folder = path_2_shared_drive + 'tilt_python/sharc_run/sj_td_plot_sfigs/' + fname + '/' + str(HoI+1) + 'Mm'
         if save_figs == True:
@@ -116,18 +119,19 @@ for fname in file_names:
         rho_2d_grid = np.reshape(df[heading_names[2]].values, grid_dims)
         if mono_image:
             f, ax = plt.subplots(figsize=f_size)
+#            f.set_size_inches(32, 18)
             f.set_size_inches(32, 18)
-            
             im = ax.pcolormesh(x_2d_grid, time_2d_grid,
-                                     rho_2d_grid, cmap=cmap_array[0])
+                                     rho_2d_grid, cmap=cmap_array[0])#, vmin=0, vmax=cbar_den_lims[HoI])
             cb = f.colorbar(im, ax=ax)
             cb.set_label(label='Density [kg m-3]')
             ax.set_ylabel('Time [s]')
             ax.set_xlabel(heading_names[1])
+#            ax.set_ylim(ymin=np.min(time_2d_grid),ymax=y_lmb_ul[HoI])
             ax.set_xlim(-1,1)
 #            plt.tight_layout()
             if save_figs==True:
-                f.savefig(save_folder+'/'+fname+'_'+str(HoI+1)+'Mm.png')
+                f.savefig(save_folder+'/'+fname+'_'+str(HoI+1)+'Mm.png')#,bbox_inches='tight')
                 f.clf()
                 plt.close()
 
