@@ -280,7 +280,7 @@ for path in dir_paths:
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'_'+path_parts[3]+'_*.vtu')
     # skip first step as no value
     full_paths = full_paths[1:]
-#    full_paths = full_paths[40:43]
+    full_paths = full_paths[:134]
 #    full_paths = full_paths[15:18]
    
     sub_data_1 = []
