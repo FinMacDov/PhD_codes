@@ -10,7 +10,7 @@ import os
 
 rename = False
 
-fps = 6 # 2
+fps = 12  # 6 # 2
 in_extension='png'
 out_extension='avi'
 
@@ -26,15 +26,15 @@ out_extension='avi'
 #search_image_word = '/t_*/*den*'
 #search_file_word = 'jet_P300_B60_A60_T*'
 #movie_name = 'width_track_mov'
-movie_name = 'jet_P300_B60_A60_T_0_15_30_45'
-search_image_word = 'jet_P300_B60_A60_T*'
-search_file_word = ''
+movie_name = 'jet_P300_B60_A60_T_0_5_10_15_faster'
+search_image_word = '*'
+search_file_word = 'jet_P300_B60_A60_T_0_5_10_15/'
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm'    
 # 2D
 #path_root = '/j/tilt_python/sharc_run/yt_images/'
 #path_root = '/j/tilt_python/sharc_run/image_check/'
-path_root = '/j/tilt_python/sharc_run/yt_images/figs_for_pres/jet_P300_B60_A60_T_0_15_30_45/'
+path_root = '/j/tilt_python/sharc_run/yt_images/figs_for_pres/'
 file_paths = glob.glob(path_2_shared_drive+path_root+search_file_word)
 
 for file in file_paths:
