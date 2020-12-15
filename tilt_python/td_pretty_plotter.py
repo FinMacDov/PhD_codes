@@ -1,5 +1,6 @@
 import sys
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
 #import matplotlib.image as mpimg
 import os
 import numpy as np
@@ -10,6 +11,19 @@ import glob
 #from yt.units import second
 from pathlib import Path
 import pandas as pd
+from itertools import chain 
+
+def add_inner_title(ax, title, loc, **kwargs):
+    from matplotlib.offsetbox import AnchoredText
+    from matplotlib.patheffects import withStroke
+    prop = dict(path_effects=[withStroke(foreground='w', linewidth=3)],
+                size=plt.rcParams['legend.fontsize'])
+    at = AnchoredText(title, loc=loc, prop=prop,
+                      pad=0., borderpad=0.5,
+                      frameon=False, **kwargs)
+    ax.add_artist(at)
+    return at
+
 
 def side_pts_of_jet(clipped_data, jet_height, nb_pts, DOMIAN, shape):
     # gets multiple pts on jet side at one instance of time
@@ -37,7 +51,7 @@ def side_pts_of_jet(clipped_data, jet_height, nb_pts, DOMIAN, shape):
         js_val_y.append(dumvar4[1])
     return js_idx_x, js_idx_y, js_val_x, js_idx_y
 
-
+degree_sign= u'\N{DEGREE SIGN}'
 save_figs = True
 quad_image = False
 mono_image = True
@@ -45,16 +59,16 @@ mono_image = True
 #SMALL_SIZE = 48
 #MEDIUM_SIZE = 50
 #BIGGER_SIZE = 52
-SMALL_SIZE = 70
-MEDIUM_SIZE = 72
-BIGGER_SIZE = 76
+SMALL_SIZE = 20
+MEDIUM_SIZE = 26
+BIGGER_SIZE = 28
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE-2)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure titl
+plt.rc('figure', titlesize=MEDIUM_SIZE)  # fontsize of the figure titl
 
 
 #driver_time = ['P300']
@@ -77,6 +91,9 @@ tilt = ['T0','T5','T10','T15','T20','T25', 'T30', 'T35', 'T40', 'T45', 'T50', 'T
 cbar_den_lims = [2e-7, 1.5e-7, 1.5e-7, 1.0e-7]
 y_lmb_ul = [550, 500, 500, 450]
 sim_nbs = len(tilt)*len(driver_time)*len(mag_str)*len(Amp)
+xlim = np.array((-1, 1))
+nrows = 4
+ncols = 3
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j/'
 file_names = np.empty(sim_nbs, dtype='U80')
@@ -95,7 +112,7 @@ for nb_dt in range(len(driver_time)):
 axis_title_size = 20
 tick_size = 18
 f_size = (20,26)
-image_range = np.arange(0, 3+1, 1)
+image_range = np.arange(0, 12+1, 1)
 shared_jet_name = 'jet_P300_B60_A60_T*/'
 data_fname = '/*_data.csv'
 heights = [1] # Mm
@@ -106,112 +123,96 @@ for HoI in heights:
     for file in file_oI:
         tilt_list.append(int(file.split('/')[-3].split('T')[-1]))
     file_oI = file_oI[np.argsort(tilt_list)] 
-    time_2d_grid_coll = []
-    x_2d_grid_coll = []
-    rho_2d_grid_coll = []
-    pic_idx_first = True
+#    col_time_2d_grid = []
+#    col_x_2d_grid = []
+    time_min_list = []
+    time_max_list = []
+    x_min_list = []
+    x_max_list = []
+    shape_list = []
     for pic_idx in image_range:
         df = pd.read_csv(file_oI[pic_idx])
         heading_names = list(df)
-        one_data_len = np.argwhere(np.diff(df['time [s]'])>0,)[0][0]+1 
-        grid_dims = [int(df['time [s]'].size/one_data_len), one_data_len]
-        time_2d_grid = np.reshape(df[heading_names[0]].values, grid_dims)
-        x_2d_grid = np.reshape(df[heading_names[1]].values, grid_dims)
-        rho_2d_grid = np.reshape(df[heading_names[2]].values, grid_dims)
-        if pic_idx_first:
-            col_time_2d_grid = time_2d_grid
-            col_x_2d_grid = x_2d_grid
-            col_rho_2d_grid = rho_2d_grid
-            pic_idx_first = False
-        else:
-            col_time_2d_grid = np.vstack((col_time_2d_grid,time_2d_grid))
-            col_x_2d_grid = np.vstack((col_x_2d_grid,x_2d_grid))
-            col_rho_2d_grid = np.vstack((col_rho_2d_grid,rho_2d_grid))
-        pass # selct images for td plots
-    f, ax = plt.subplots(figsize=f_size)
-    f.set_size_inches(32, 18)
-    im = ax.pcolormesh(col_x_2d_grid, col_time_2d_grid,
-                             col_rho_2d_grid, cmap=cmap_array[0])#, vmin=0, vmax=cbar_den_lims[HoI])
-    cb = f.colorbar(im, ax=ax)
-    cb.set_label(label='Density [kg m-3]')
-    ax.set_ylabel('Time [s]')
+        time_min_list.append(min(df[heading_names[0]].values))
+        time_max_list.append(max(df[heading_names[0]].values))
+        x_min_list.append(min(df[heading_names[1]].values))
+        x_max_list.append(max(df[heading_names[1]].values))
+    time_extent = max(time_min_list), min(time_max_list)
+    x_extent = max(x_min_list), min(x_max_list)
+    aspect_ratio = sum(abs(xlim))/sum(abs(np.asarray(time_extent)))
+    extent = x_extent[0], x_extent[-1], time_extent[0], time_extent[-1]
 
-
-
-scsdz
-for fname in file_names:
-    fgdfgdf
-#    name_parts =  fname.split('_')[:-1]
-#    join_name = '_'.join([fi for fi in name_parts])
-
-    path_td_data = 'sharc_run/td_plots_data_sj/'+fname
-    h_range = glob.glob(path_td_data+'/*')
-    for HoI in range(len(h_range)):
-        save_folder = path_2_shared_drive + 'tilt_python/sharc_run/sj_td_plot_sfigs/' + fname + '/' + str(HoI+1) + 'Mm'
-        if save_figs == True:
-            Path(save_folder).mkdir(parents=True, exist_ok=True)    
-        path_2_files = path_td_data+'/'+str(HoI+1)+'Mm/'+csv_name 
-        
-        df = pd.read_csv(path_2_files) 
+    col_rho_2d_grid = []
+    for pic_idx in image_range:
+        df = pd.read_csv(file_oI[pic_idx])
+        idx_select = np.argwhere((df['time [s]'].values<=time_extent[-1]) & (df['time [s]'].values>=time_extent[0]))
+        df = df.loc[0:idx_select[-1][0]]
         heading_names = list(df)
-        
         one_data_len = np.argwhere(np.diff(df['time [s]'])>0,)[0][0]+1 
         grid_dims = [int(df['time [s]'].size/one_data_len), one_data_len]
-        
-        time_2d_grid = np.reshape(df[heading_names[0]].values, grid_dims)
-        x_2d_grid = np.reshape(df[heading_names[1]].values, grid_dims)
         rho_2d_grid = np.reshape(df[heading_names[2]].values, grid_dims)
-        if mono_image:
-            f, ax = plt.subplots(figsize=f_size)
-#            f.set_size_inches(32, 18)
-            f.set_size_inches(32, 18)
-            im = ax.pcolormesh(x_2d_grid, time_2d_grid,
-                                     rho_2d_grid, cmap=cmap_array[0])#, vmin=0, vmax=cbar_den_lims[HoI])
-            cb = f.colorbar(im, ax=ax)
-            cb.set_label(label='Density [kg m-3]')
-            ax.set_ylabel('Time [s]')
-            ax.set_xlabel(heading_names[1])
-#            ax.set_ylim(ymin=np.min(time_2d_grid),ymax=y_lmb_ul[HoI])
-            ax.set_xlim(-1,1)
-#            plt.tight_layout()
-            if save_figs==True:
-                f.savefig(save_folder+'/'+fname+'_'+str(HoI+1)+'Mm.png')#,bbox_inches='tight')
-                f.clf()
-                plt.close()
+        shape_list.append(np.shape(rho_2d_grid))
+        col_rho_2d_grid.append(rho_2d_grid)
 
-        if quad_image == True:        
-            Te_2d_grid = np.reshape(df[heading_names[3]].values, grid_dims)
-            Vx_2d_grid = np.reshape(df[heading_names[4]].values, grid_dims)
-            Vy_2d_grid = np.reshape(df[heading_names[5]].values, grid_dims)
-            
-            data_cluster = [[rho_2d_grid, Te_2d_grid],[Vx_2d_grid, Vy_2d_grid]]
-            
+    F = plt.figure(figsize=(32, 18))
+    F.clf()
+    grid2 = ImageGrid(F, 111,
+                      nrows_ncols=(nrows, ncols),
+                      direction="row",
+                      axes_pad=0.0,
+                      add_all=True,
+                      label_mode="1",
+                      share_all=True,
+                      cbar_location="right",
+                      cbar_mode="single",
+                      cbar_size="3%",
+                      cbar_pad=0.05,
+                      )
+    lab_loc = nrows*ncols-ncols
+    grid2[lab_loc].set_xlabel("X [Mm]")
+    grid2[lab_loc].set_ylabel("Height [Mm]")
 
-            f, ax = plt.subplots(2, 2, figsize=f_size)
-            f.set_size_inches(32, 18)
-            #mng = plt.get_current_fig_manager()
-            #mng.resize(*mng.window.maxsize())
-                
-            c = 0
-            for j in range(len(data_cluster[0])):
-                for k in range(len(data_cluster[1])):
-                    f.suptitle(fname, size=26)
-                    if j==1:
-                        lim = np.max(abs(data_cluster[j][k]))
-                        im = ax[j][k].pcolormesh(x_2d_grid, time_2d_grid, data_cluster[j][k], cmap=cmap_array[c], vmin=-lim, vmax=lim )
-                    else:
-                        im = ax[j][k].pcolormesh(x_2d_grid, time_2d_grid, data_cluster[j][k], cmap=cmap_array[c])
-                    cb = f.colorbar(im, ax=ax[j][k])
-                    cb.set_label(label=heading_names[c+2], size=axis_title_size)
-                    cb.ax.tick_params(labelsize=tick_size)
-                    ax[j][k].set_ylabel(heading_names[0], size=axis_title_size)
-                    ax[j][k].set_xlabel(heading_names[1], size=axis_title_size)
-                    ax[j][k].tick_params(axis='both', which='minor', labelsize=tick_size)
-                    ax[j][k].tick_params(axis='both', which='major', labelsize=tick_size)
-                    ax[j][k].set_xlim(-1,1)
-                    c += 1
-            if save_figs==True:
-                f.savefig(save_folder+fname+'_'+str(HoI+1)+'Mm.png')#,dpi=600)
-                f.clf()
-                plt.close()
+    vmin_list = []
+    vmax_list = []
+    for nb_array in col_rho_2d_grid:
+        vmin_list.append(np.min(nb_array))
+        vmax_list.append(np.max(nb_array))
+    vmax, vmin = np.max(vmax_list), np.min(vmin_list)    
+#    vmax, vmin = cbar_den_lims[1], np.min(vmin_list)    
+    import matplotlib.colors
+    norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
+    for ax, z in zip(grid2, col_rho_2d_grid):
+        im = ax.imshow(z, norm=norm, cmap=cmap_array[0],
+                       origin="lower", extent=extent,
+                       interpolation="nearest", aspect=aspect_ratio)
+        ax.set_xlim(-1,1)
+
+    ax.cax.colorbar(im)
+    ax.cax.toggle_label(True)
+    
+    grid2[0].cax.colorbar(im)
+    cax = grid2.cbar_axes[0]
+    axis = cax.axis[cax.orientation]
+    axis.label.set_text("Density $[kg ~m^{-3}]$")
+    
+    for ax, im_title in zip(grid2, [r'$\theta=$0'+degree_sign,
+                                    r'$\theta=$5'+degree_sign,
+                                    r'$\theta=$10'+degree_sign,
+                                    r'$\theta=$15'+degree_sign,
+                                    r'$\theta=$20'+degree_sign,
+                                    r'$\theta=$25'+degree_sign,
+                                    r'$\theta=$30'+degree_sign,
+                                    r'$\theta=$35'+degree_sign,
+                                    r'$\theta=$40'+degree_sign,
+                                    r'$\theta=$45'+degree_sign,
+                                    r'$\theta=$50'+degree_sign,
+                                    r'$\theta=$55'+degree_sign]):
+        t = add_inner_title(ax, im_title, loc='upper left')
+        t.patch.set_ec("none")
+        t.patch.set_alpha(0.5)
+
+    F.savefig('test_td_plot_1Mm.png', bbox_inches='tight')
+
+    plt.draw()
+    plt.show()
