@@ -38,8 +38,8 @@ path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #        'jet_P300_B60_A60_T50', 'jet_P300_B60_A60_T55',
 #        'jet_P300_B60_A60_T60']
 
-name = [ 'jet_P300_B60_A60_T0', 'jet_P300_B60_A60_T15', 
-        'jet_P300_B60_A60_T30', 'jet_P300_B60_A60_T45']
+name = [ 'jet_P300_B60_A60_T0', 'jet_P300_B60_A60_T10', 
+        'jet_P300_B60_A60_T20', 'jet_P300_B60_A60_T30']
 tilt_nbs = [nam.split('T')[-1]  for nam in name]
 jet_name =  name[0].split('T')[0]
 tilt_nbs = '_'.join(tilt_nbs)
