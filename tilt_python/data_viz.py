@@ -105,12 +105,28 @@ path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk
 dir_paths_max_h =  glob.glob('sharc_run/jet_B60_A60_T*/max_h_data*')
 dir_paths_big_data = glob.glob('sharc_run/jet_B60_A60_T*/big_data*')
 
+
+dummy_max_h0 = []
+max_h_data_set = []
+dummy_bd0 = []
+big_data_set = []
+
 dummy_max_h0 = pd.read_pickle(dir_paths_max_h[0])
 dummy_bd0 = pd.read_pickle(dir_paths_big_data[0])
+if len(dummy_max_h0)>1:
+    dummy_max_h0 = dummy_max_h0.drop([0])
+if len(dummy_bd0)>1:
+    dummy_bd0 = dummy_bd0.drop([0])
+
+
 first_append = True
 for i in range(1,len(dir_paths_max_h)):
     dummy_max_h = pd.read_pickle(dir_paths_max_h[i])
     dummy_bd = pd.read_pickle(dir_paths_big_data[i])
+    if len(dummy_max_h)>1:
+        dummy_max_h = dummy_max_h.drop([0])
+    if len(dummy_bd)>1:
+        dummy_bd = dummy_bd.drop([0])
     if first_append == True:
         first_append = False
         max_h_data_set = dummy_max_h0.append(dummy_max_h,ignore_index=True)
@@ -163,7 +179,7 @@ plot_w_vs_t = False
 plot_error_bars = False
 plot_hmax_vs_B = False
 plot_hmax_vs_A = False
-plot_mean_w_vs_tilt = False
+plot_mean_w_vs_tilt = True
 power_law_fit = False
 plot_hmax_vs_dt = False
 data_check = False
@@ -173,11 +189,11 @@ sf = [0.55, 0.55, 0.5, 0.5]
 plot_mean_w_vs_BAdt = False
 test_balstic = False
 Decelleration_analysis = False
-c_data = False
+c_data = True
 jet_word_search = 'jet_P300_B60_A60_T*/*data.csv'
 jl_jet_word_search = 'jet_P300_B60_A60_T*/*jl.csv'
-apex_vs_tile = False
-plot_cdata_LA = True
+apex_vs_tile = True
+plot_cdata_LA = False
 
 lw =  3# 2.5#  
 
@@ -292,9 +308,9 @@ if plot_cdata_LA:
     tilt_deg = []
     i=0
     for cdex, cdata_name in enumerate(path2_c_data):
-        i = i % len(colors)
-        j = i % len(styles_alt)
-        if i ==0: styles_alt = [styles_alt[-1]]+styles_alt[:-1]
+        i = cdex % len(colors)
+        j = cdex % len(styles_alt)
+#        if i ==0: styles_alt = [styles_alt[-1]]+styles_alt[:-1]
         dumb_file = pd.read_csv(cdata_name)
         ax.plot(dumb_file['Time [s]'], dumb_file['Jet length [Mm]'],
                 label=r'$\theta=$'+str(tilt_nb[cdex])+degree_sign, 
@@ -304,7 +320,7 @@ if plot_cdata_LA:
     ax.legend(fontsize=24)
     ax.set_ylim(0,8) 
     plt.xlabel('Time [s]', fontsize=32)
-    plt.ylabel('Height [Mm]', fontsize=32)
+    plt.ylabel('Length [Mm]', fontsize=32)
     ax.tick_params(axis='both', which='major', labelsize=28)
     ax.tick_params(axis='both', which='minor', labelsize=28)
     fig.savefig('sharc_run/fig_for_paper/'+'JL_vs_t'+'.png')
@@ -337,8 +353,8 @@ if plot_h_vs_t == True:
         plt.ylabel('Height [Mm]', fontsize=32)
         ax.tick_params(axis='both', which='major', labelsize=28)
         ax.tick_params(axis='both', which='minor', labelsize=28)
-
-        plt.show()
+        fig.savefig('sharc_run/fig_for_paper/'+'time_vs_height'+'.png')
+        plt.close()
     else:
         for idx_num, idx_name in enumerate(list_of_indexs):
             fig, ax = plt.subplots(figsize=(20,12))
@@ -469,7 +485,7 @@ if apex_vs_tile == True:
     test_ax.tick_params(axis='both', which='major', labelsize=28)
     test_ax.tick_params(axis='both', which='minor', labelsize=28)
 
-    test_fig.savefig('apex_vs_tilt.png')
+    test_fig.savefig('sharc_run/fig_for_paper/apex_vs_tilt.png')
     plt.close()
 
 data_mean_w = []
@@ -562,7 +578,7 @@ if plot_w_vs_t == True:
                           linestyle='--', marker='o', color='b',
                           label = 'Horizontal slit', markersize=20,
                           linewidth=5)
-        plt.legend(loc=1, fontsize=24)
+        plt.legend(loc='upper left', fontsize=24)
         ax.set_ylabel("Mean width [km]", fontsize=28)
         ax.set_xlabel('Tilt' + ' [' + degree_sign + ']', fontsize=28)
         ax.tick_params(axis='both', which='major', labelsize=28)
