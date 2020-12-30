@@ -32,7 +32,7 @@ def submitter_creation_py(path_2_shared_drive, path_2_sub_dir, file_name, email,
 
 
 path_2_shared_drive = '/shared/mhd_jet1/User/smp16fm/j'    
-dir_paths =  glob.glob(path_2_shared_drive+'/T/P300/B60/A60/T*')
+dir_paths =  glob.glob(path_2_shared_drive+'/T/P300/B*/A*/T*')
 # testing 
 #dir_paths = [dir_paths[-8]]
 
