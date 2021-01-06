@@ -608,7 +608,6 @@ for path in dir_paths:
             # image
 #            plt.imshow(sorted_data, cmap=cmap)
             plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-            plt.xlim(-1,1)
 #            plt.xlim(-1,1)
             plt.ylim(0,8)
             plt.gca().set_aspect(0.5, adjustable='box')
