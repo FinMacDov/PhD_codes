@@ -78,9 +78,9 @@ def ballistic_flight(v0, g, t):
 degree_sign= u'\N{DEGREE SIGN}'
 i = 0
 shuff = 0
-SMALL_SIZE = 28
-MEDIUM_SIZE = 32
-BIGGER_SIZE = 34
+SMALL_SIZE = 24
+MEDIUM_SIZE = SMALL_SIZE + 2
+BIGGER_SIZE = MEDIUM_SIZE + 2
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
@@ -102,8 +102,12 @@ path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #max_h_data_set = pd.read_pickle(dir_paths[1])
 #big_data_set = pd.read_pickle(dir_paths[0])
 
-dir_paths_max_h =  glob.glob('sharc_run/jet_B60_A60_T*/max_h_data*')
-dir_paths_big_data = glob.glob('sharc_run/jet_B60_A60_T*/big_data*')
+#dir_paths_max_h =  glob.glob('sharc_run/jet_B60_A60_T*/max_h_data*')
+#dir_paths_big_data = glob.glob('sharc_run/jet_B60_A60_T*/big_data*')
+
+dir_paths_max_h =  glob.glob('sharc_run/p_scan/*/max_h_data*')
+dir_paths_big_data = glob.glob('sharc_run/p_scan/*/big_data*')
+
 
 
 dummy_max_h0 = []
@@ -113,11 +117,24 @@ big_data_set = []
 
 dummy_max_h0 = pd.read_pickle(dir_paths_max_h[0])
 dummy_bd0 = pd.read_pickle(dir_paths_big_data[0])
-if len(dummy_max_h0)>1:
-    dummy_max_h0 = dummy_max_h0.drop([0])
-if len(dummy_bd0)>1:
-    dummy_bd0 = dummy_bd0.drop([0])
 
+# Silly fix for badly saved data.
+# data files are being appended each run, need to fix this in other script
+keep_indx = 1
+if len(dummy_max_h0)>1:
+#    dummy_max_h0 = dummy_max_h0.drop([0])
+    for clip_idx in dummy_max_h0.index:
+        if clip_idx == keep_indx:
+            pass
+        else:
+            dummy_max_h0 = dummy_max_h0.drop([clip_idx])
+if len(dummy_bd0)>1:
+#    dummy_bd0 = dummy_bd0.drop([0])
+    for clip_idx in dummy_bd0.index:
+        if clip_idx == keep_indx:
+            pass
+        else:
+            dummy_bd0 = dummy_bd0.drop([clip_idx])
 
 first_append = True
 for i in range(1,len(dir_paths_max_h)):
@@ -125,8 +142,18 @@ for i in range(1,len(dir_paths_max_h)):
     dummy_bd = pd.read_pickle(dir_paths_big_data[i])
     if len(dummy_max_h)>1:
         dummy_max_h = dummy_max_h.drop([0])
+        for clip_idx in dummy_max_h.index:
+            if clip_idx == keep_indx:
+                pass
+            else:
+                dummy_max_h = dummy_max_h.drop([clip_idx])
     if len(dummy_bd)>1:
-        dummy_bd = dummy_bd.drop([0])
+#        dummy_bd = dummy_bd.drop([0])
+        for clip_idx in dummy_bd.index:
+            if clip_idx == keep_indx:
+                pass
+            else:
+                dummy_bd = dummy_bd.drop([clip_idx])
     if first_append == True:
         first_append = False
         max_h_data_set = dummy_max_h0.append(dummy_max_h,ignore_index=True)
@@ -175,11 +202,11 @@ dt = unit_time/20
 #dt = unit_time/200 # high dt
 plot_h_vs_t = False
 all_data = False # plotss all data as suppose to small selection 
-plot_w_vs_t = True
+plot_w_vs_t = False
 plot_error_bars = False
-plot_hmax_vs_B = False
-plot_hmax_vs_A = False
-plot_mean_w_vs_tilt = True
+plot_hmax_vs_B = False #
+plot_hmax_vs_A = False #
+plot_mean_w_vs_tilt = False
 power_law_fit = False
 plot_hmax_vs_dt = False
 data_check = False
@@ -192,8 +219,9 @@ Decelleration_analysis = False
 c_data = True
 jet_word_search = 'jet_P300_B60_A60_T*/*data.csv'
 jl_jet_word_search = 'jet_P300_B60_A60_T*/*jl.csv'
-apex_vs_tile = True
+apex_vs_tile = False
 plot_cdata_LA = False
+quad_plot = True
 
 lw =  3# 2.5#  
 
@@ -593,22 +621,23 @@ if plot_w_vs_t == True:
             os.makedirs(wmean_root_dir)
         i = 0
         fig, ax = plt.subplots(figsize=(20, 12))
-        for key, grp in df_w.groupby(['amplitude [km s-1]']):
-            ground_nb = len(grp.groupby('driver time [s]').groups)
+        for key_s, grp_s in df_w.groupby(['tilt [degrees]']):
+            ground_nb = len(grp_s.groupby('driver time [s]').groups)
             ii = i*ground_nb % (len(colors)-1)
             i += 1
             shuff = 0
-            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
-                j = shuff % len(styles)
-                shuff += 1
-                ax = sub_grp.plot(ax=ax, kind='line',
-                                  x='magnetic field strength [G]',
-                                  y='mean width [km]',
-                                  label='P='+str(int(sub_key)) +
-                                        ', A='+str(int(key)),
-                                  c=colors[ii], style=styles[j])
-                if data_check == True:
-                    print(sub_grp)
+            for key, grp in grp_s.groupby(['amplitude [km s-1]']):
+                for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                    j = shuff % len(styles)
+                    shuff += 1
+                    ax = sub_grp.plot(ax=ax, kind='line',
+                                      x='magnetic field strength [G]',
+                                      y='mean width [km]',
+                                      label='P='+str(int(sub_key)) +
+                                            ', A='+str(int(key)) + ', T='+str(int(key_s)),
+                                      c=colors[ii], style=styles[j])
+                    if data_check == True:
+                        print(sub_grp)
         plt.legend(loc=1, fontsize=24)
         ax.set_ylabel("Mean width [km]", fontsize=28)
         ax.set_xlabel('Magnetic field strength [G]', fontsize=28)
@@ -620,20 +649,21 @@ if plot_w_vs_t == True:
 
         i = 0
         fig, ax = plt.subplots(figsize=(20,12))
-        for key, grp in df_w.groupby(['magnetic field strength [G]']):
-            ground_nb = len(grp.groupby('driver time [s]').groups)
+        for key_s, grp_s in df_w.groupby(['tilt [degrees]']):
+            ground_nb = len(grp_s.groupby('driver time [s]').groups)
             ii = i*ground_nb % (len(colors)-1)
             i += 1
-            shuff = 0
-            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
-                j = shuff % len(styles)
-                shuff += 1          
-                ax = sub_grp.plot(ax=ax, kind='line', x='amplitude [km s-1]', 
-                                  y='mean width [km]',
-                                  label='P='+str(int(sub_key))+', B='+str(int(key)),
-                                  c=colors[ii], style=styles[j], lw=lw)
-                if data_check == True:
-                    print(sub_grp)
+            shuff = 0            
+            for key, grp in grp_s.groupby(['magnetic field strength [G]']):
+                for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                    j = shuff % len(styles)
+                    shuff += 1          
+                    ax = sub_grp.plot(ax=ax, kind='line', x='amplitude [km s-1]', 
+                                      y='mean width [km]',
+                                      label='P='+str(int(sub_key))+', B='+str(int(key))+', T='+str(int(key_s)),
+                                      c=colors[ii], style=styles[j], lw=lw)
+                    if data_check == True:
+                        print(sub_grp)
         plt.legend(loc=1, fontsize=24)
         ax.set_ylabel("mean width [km]", fontsize=28)
         ax.set_xlabel('amplitude [km s-1]', fontsize=28)
@@ -643,52 +673,53 @@ if plot_w_vs_t == True:
         plt.savefig(wmean_root_dir+'/mean_w_vs_A_BF.png')
         plt.close()
 
-        fig, ax = plt.subplots(figsize=(20,12))
-        for key, grp in df_w.groupby(['magnetic field strength [G]']):
-            ground_nb = len(grp.groupby('driver time [s]').groups)
-            ii = i*ground_nb % (len(colors)-1)
-            i += 1
-            shuff = 0 
-            for sub_key, sub_grp in grp.groupby(['amplitude [km s-1]']):
-                j = shuff % len(styles)
-                shuff += 1
-                ax = sub_grp.plot(ax=ax, kind='line', x='driver time [s]', 
-                                  y='mean width [km]',
-                                  label='B='+str(int(key))+', A='+str(int(sub_key)),
-                                  c=colors[ii], style=styles[j], lw=lw)
-                if data_check == True:
-                    print(sub_grp)
-#        plt.legend(bbox_to_anchor=(1.2,0.5), loc=7, fontsize=20)
-        plt.legend(loc=1, fontsize=24)
-#        plt.tight_layout()
-        ax.set_ylabel("mean width [km]", fontsize=28)
-        ax.set_xlabel('driver time [s]', fontsize=28)
-        ax.tick_params(axis='both', which='major', labelsize=28)
-        ax.tick_params(axis='both', which='minor', labelsize=28)
-        ax.set_xlim(right=385)
-        plt.savefig(wmean_root_dir+'/mean_w_vs_P_BF.png')
-        plt.close()
+#        fig, ax = plt.subplots(figsize=(20,12))
+#        for key, grp in df_w.groupby(['magnetic field strength [G]']):
+#            ground_nb = len(grp.groupby('driver time [s]').groups)
+#            ii = i*ground_nb % (len(colors)-1)
+#            i += 1
+#            shuff = 0 
+#            for sub_key, sub_grp in grp.groupby(['amplitude [km s-1]']):
+#                j = shuff % len(styles)
+#                shuff += 1
+#                ax = sub_grp.plot(ax=ax, kind='line', x='driver time [s]', 
+#                                  y='mean width [km]',
+#                                  label='B='+str(int(key))+', A='+str(int(sub_key)),
+#                                  c=colors[ii], style=styles[j], lw=lw)
+#                if data_check == True:
+#                    print(sub_grp)
+##        plt.legend(bbox_to_anchor=(1.2,0.5), loc=7, fontsize=20)
+#        plt.legend(loc=1, fontsize=24)
+##        plt.tight_layout()
+#        ax.set_ylabel("mean width [km]", fontsize=28)
+#        ax.set_xlabel('driver time [s]', fontsize=28)
+#        ax.tick_params(axis='both', which='major', labelsize=28)
+#        ax.tick_params(axis='both', which='minor', labelsize=28)
+#        ax.set_xlim(right=385)
+#        plt.savefig(wmean_root_dir+'/mean_w_vs_P_BF.png')
+#        plt.close()
 
 
 
 if plot_hmax_vs_B == True:
     i=0
     fig, ax = plt.subplots(figsize=(20,12))
-    for key, grp in max_h_data_set.groupby(['amplitude [km s-1]']):
-        ground_nb = len(grp.groupby('driver time [s]').groups)
-        ii = i*ground_nb % (len(colors)-1)
+    for key_t, grp_t in max_h_data_set.groupby(['Tilt [deg]']):
+        ground_nb_t = len(grp_t.groupby('driver time [s]').groups)
+        ii = i*ground_nb_t % (len(colors)-1)
         i += 1
         shuff = 0
-        for sub_key, sub_grp in grp.groupby(['driver time [s]']):
-            j = shuff % len(styles)
-            shuff += 1
-            ax = sub_grp.plot(ax=ax, kind='line',
-                              x='magnetic field strength [G]', 
-                              y='max height [Mm]',
-                              label='P='+str(int(sub_key))+', A='+str(int(key)),
-                              c=colors[ii], style=styles[j])
-            if data_check == True:
-                print(sub_grp)
+        for key, grp in grp_t.groupby(['amplitude [km s-1]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1
+                ax = sub_grp.plot(ax=ax, kind='line',
+                                  x='magnetic field strength [G]', 
+                                  y='max height [Mm]',
+                                  label='P='+str(int(sub_key))+', A='+str(int(key))+', T='+str(int(key_t)),
+                                  c=colors[ii], style=styles[j])
+                if data_check == True:
+                    print(sub_grp)
     plt.gca().set_xlim(right=120)
     plt.legend(loc=1, fontsize=18)
     ax.set_ylabel("max height [Mm]", fontsize=28)
@@ -700,51 +731,53 @@ if plot_hmax_vs_B == True:
 if plot_hmax_vs_A == True:
     i = 0
     fig, ax = plt.subplots(figsize=(20,12))
-    for key, grp in max_h_data_set.groupby(['magnetic field strength [G]']):
-        ground_nb = len(grp.groupby('driver time [s]').groups)
+    for key_t, grp_t in max_h_data_set.groupby(['Tilt [deg]']):
+        ground_nb = len(grp_t.groupby('driver time [s]').groups)
         ii = i*ground_nb % (len(colors)-1)
         i += 1
-        shuff = 0
-        for sub_key, sub_grp in grp.groupby(['driver time [s]']):
-            j = shuff % len(styles)
-            shuff += 1          
-            ax = sub_grp.plot(ax=ax, kind='line', x='amplitude [km s-1]', 
-                              y='max height [Mm]',
-                              label='P='+str(int(sub_key))+', B='+str(int(key)),
-                              c=colors[ii], style=styles[j], lw=lw)
-            if data_check == True:
-                print(sub_grp)
-    plt.legend(loc=2)
-    ax.set_ylabel("max height [Mm]")
-    if power_law_fit == True:
-        mean_h = []
-        std_h = []
-        v = []
-        for key, grp in max_h_data_set.groupby(['amplitude [km s-1]']):
-             mean_h.append(grp['max height [Mm]'].mean())
-             std_h.append(grp['max height [Mm]'].std())
-             v.append(key)
-        if plot_error_bars == True:
-            plt.errorbar(v, mean_h, color='k', yerr=std_h, zorder=20, fmt='-o',
-                         errorevery=1, barsabove=True, capsize=5, capthick=2)
-        popt_log, pcov_log, ydatafit_log = curve_fit_log(v, mean_h, std_h)
-        perr = np.sqrt(np.diag(pcov_log))
-        nstd = 1 # to draw 5-sigma intervals
-        popt_up = popt_log+nstd*perr
-        popt_dw = popt_log-nstd*perr
-        v = np.asarray(v)
-
-        fit_up = np.power(10, linlaw(np.log10(v),*popt_up))
-        fit_dw = np.power(10, linlaw(np.log10(v),*popt_dw))
-        plt.plot(v,ydatafit_log,'crimson',linewidth=lw, marker='o',
-                 markersize=12, label='average')
-        ax.fill_between(v, fit_up, fit_dw, alpha=.25)
+        shuff = 0        
+        for key, grp in grp_t.groupby(['magnetic field strength [G]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1          
+                ax = sub_grp.plot(ax=ax, kind='line', x='amplitude [km s-1]', 
+                                  y='max height [Mm]',
+                                  label='P='+str(int(sub_key))+', B='+str(int(key))+', T='+str(int(key_t)),
+                                  c=colors[ii], style=styles[j], lw=lw)
+                if data_check == True:
+                    print(sub_grp)
+        plt.legend(loc=2)
+        ax.set_ylabel("max height [Mm]")
+        if power_law_fit == True:
+            mean_h = []
+            std_h = []
+            v = []
+            for key, grp in max_h_data_set.groupby(['amplitude [km s-1]']):
+                 mean_h.append(grp['max height [Mm]'].mean())
+                 std_h.append(grp['max height [Mm]'].std())
+                 v.append(key)
+            if plot_error_bars == True:
+                plt.errorbar(v, mean_h, color='k', yerr=std_h, zorder=20, fmt='-o',
+                             errorevery=1, barsabove=True, capsize=5, capthick=2)
+            popt_log, pcov_log, ydatafit_log = curve_fit_log(v, mean_h, std_h)
+            perr = np.sqrt(np.diag(pcov_log))
+            nstd = 1 # to draw 5-sigma intervals
+            popt_up = popt_log+nstd*perr
+            popt_dw = popt_log-nstd*perr
+            v = np.asarray(v)
+    
+            fit_up = np.power(10, linlaw(np.log10(v),*popt_up))
+            fit_dw = np.power(10, linlaw(np.log10(v),*popt_dw))
+            plt.plot(v,ydatafit_log,'crimson',linewidth=lw, marker='o',
+                     markersize=12, label='average')
+            ax.fill_between(v, fit_up, fit_dw, alpha=.25)
+            test = powlaw(v, *popt_log) 
     plt.legend(fontsize=18)
     ax.set_ylabel("max height [Mm]", fontsize=28)
     ax.set_xlabel('amplitude [km s-1]', fontsize=28)
     ax.tick_params(axis='both', which='major', labelsize=28)
     ax.tick_params(axis='both', which='minor', labelsize=28)
-    test = powlaw(v, *popt_log) 
+
 
     plt.show()
 
@@ -774,3 +807,150 @@ if plot_hmax_vs_dt == True:
     plt.show()
     plt.savefig('hmax_vs_dt.png')
     plt.close()
+    
+if quad_plot == True:
+    multi_fig, ((ax11,ax12), (ax21, ax22)) = plt.subplots(ncols=2, nrows=2, constrained_layout=True, figsize=(30,20))
+    i = 0
+    for key_t, grp_t in max_h_data_set.groupby(['Tilt [deg]']):
+        ground_nb = len(grp_t.groupby('driver time [s]').groups)
+        ii = i*ground_nb % (len(colors)-1)
+        i += 1
+        shuff = 0        
+        for key, grp in grp_t.groupby(['magnetic field strength [G]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1          
+                plot_pd = sub_grp.plot(ax=ax21, kind='line', x='amplitude [km s-1]', 
+                                  y='max height [Mm]',
+                                  label='P='+str(int(sub_key))+', B='+str(int(key))+', T='+str(int(key_t)),
+                                  c=colors[ii], style=styles[j], lw=lw)
+                if data_check == True:
+                    print(sub_grp)
+        ax21.legend(loc=2)
+        ax21.set_ylabel("Max height [Mm]")
+        ax21.set_xlabel("A [km s-1]")
+        if power_law_fit == True:
+            mean_h = []
+            std_h = []
+            v = []
+            for key, grp in max_h_data_set.groupby(['amplitude [km s-1]']):
+                 mean_h.append(grp['max height [Mm]'].mean())
+                 std_h.append(grp['max height [Mm]'].std())
+                 v.append(key)
+            if plot_error_bars == True:
+                ax21.errorbar(v, mean_h, color='k', yerr=std_h, zorder=20, fmt='-o',
+                             errorevery=1, barsabove=True, capsize=5, capthick=2)
+            popt_log, pcov_log, ydatafit_log = curve_fit_log(v, mean_h, std_h)
+            perr = np.sqrt(np.diag(pcov_log))
+            nstd = 1 # to draw 5-sigma intervals
+            popt_up = popt_log+nstd*perr
+            popt_dw = popt_log-nstd*perr
+            v = np.asarray(v)
+    
+            fit_up = np.power(10, linlaw(np.log10(v),*popt_up))
+            fit_dw = np.power(10, linlaw(np.log10(v),*popt_dw))
+            ax21.plot(v,ydatafit_log,'crimson',linewidth=lw, marker='o',
+                     markersize=12, label='average')
+            ax21.fill_between(v, fit_up, fit_dw, alpha=.25)
+            test = powlaw(v, *popt_log) 
+    ax21.legend(fontsize=18)
+    ax21.set_ylabel("Max height [Mm]")
+    ax21.set_xlabel('A [km s-1]')
+    ax21.tick_params(axis='both', which='major')
+    ax21.tick_params(axis='both', which='minor')
+    
+    for key_t, grp_t in max_h_data_set.groupby(['Tilt [deg]']):
+        ground_nb_t = len(grp_t.groupby('driver time [s]').groups)
+        ii = i*ground_nb_t % (len(colors)-1)
+        i += 1
+        shuff = 0
+        for key, grp in grp_t.groupby(['amplitude [km s-1]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1
+                plot_pd = sub_grp.plot(ax=ax11, kind='line',
+                                  x='magnetic field strength [G]', 
+                                  y='max height [Mm]',
+                                  label='P='+str(int(sub_key))+', A='+str(int(key))+', T='+str(int(key_t)),
+                                  c=colors[ii], style=styles[j])
+                if data_check == True:
+                    print(sub_grp)
+    ax11.set_xlim(right=120)
+    ax11.legend(loc=1)
+    ax11.set_ylabel("Max height [Mm]")
+    ax11.set_xlabel('B [G]')
+    ax11.tick_params(axis='both', which='major')
+    ax11.tick_params(axis='both', which='minor')
+
+    t_max = 0
+    for idx in range(len(big_data_set)):
+        data_x, data_y = clipped_h_data_plotter(big_data_set, idx)
+        data_y = []
+        t_max = max(data_x)*TIME_CORRECTION_FACTOR*dt
+        jet_width = np.asanyarray(big_data_set['dfs'][idx]['jet Width [km]'])
+        jet_time = np.asanyarray(big_data_set['dfs'][idx]['side time [s]'])*TIME_CORRECTION_FACTOR*dt
+        height_markers = np.asanyarray(big_data_set['dfs'][idx]['height [Mm]'])
+#        if t_max < max(data_x): t_max = max(data_x)
+        if np.isnan(sum(big_data_set['dfs'][idx]['height [Mm]'])) == True:
+            pass
+        else:
+            data_mean_w.append([big_data_set['idx'][idx][0],
+                                big_data_set['idx'][idx][1],
+                                big_data_set['idx'][idx][2],
+                                big_data_set['idx'][idx][3],
+                                big_data_set['dfs'][idx]['jet Width [km]'].mean()])
+    df_w = pd.DataFrame(data_mean_w, columns=['driver time [s]',
+                                              'magnetic field strength [G]',
+                                              'amplitude [km s-1]',
+                                              'tilt [degrees]',
+                                              'mean width [km]'])
+
+    i = 0
+    for key_s, grp_s in df_w.groupby(['tilt [degrees]']):
+        ground_nb = len(grp_s.groupby('driver time [s]').groups)
+        ii = i*ground_nb % (len(colors)-1)
+        i += 1
+        shuff = 0
+        for key, grp in grp_s.groupby(['amplitude [km s-1]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1
+                plot_pd = sub_grp.plot(ax=ax12, kind='line',
+                                  x='magnetic field strength [G]',
+                                  y='mean width [km]',
+                                  label='P='+str(int(sub_key)) +
+                                        ', A='+str(int(key)) + ', T='+str(int(key_s)),
+                                  c=colors[ii], style=styles[j])
+                if data_check == True:
+                    print(sub_grp)
+    ax12.legend(loc=1)
+    ax12.set_ylabel("Mean width [km]")
+    ax12.set_xlabel('B [G]')
+    ax12.tick_params(axis='both', which='major')
+    ax12.tick_params(axis='both', which='minor')
+
+    i = 0
+    for key_s, grp_s in df_w.groupby(['tilt [degrees]']):
+        ground_nb = len(grp_s.groupby('driver time [s]').groups)
+        ii = i*ground_nb % (len(colors)-1)
+        i += 1
+        shuff = 0            
+        for key, grp in grp_s.groupby(['magnetic field strength [G]']):
+            for sub_key, sub_grp in grp.groupby(['driver time [s]']):
+                j = shuff % len(styles)
+                shuff += 1          
+                plot_pd = sub_grp.plot(ax=ax22, kind='line', x='amplitude [km s-1]', 
+                                  y='mean width [km]',
+                                  label='P='+str(int(sub_key))+', B='+str(int(key))+', T='+str(int(key_s)),
+                                  c=colors[ii], style=styles[j], lw=lw)
+                if data_check == True:
+                    print(sub_grp)
+    ax22.legend(loc=1)
+    ax22.set_ylabel("Mean width [km]")
+    ax22.set_xlabel('A [km s-1]')
+    ax22.tick_params(axis='both', which='major')
+    ax22.tick_params(axis='both', which='minor')
+    plt.show()
+
+
+
