@@ -1,7 +1,7 @@
 import sys
 import matplotlib
-matplotlib.use('Agg')
-#matplotlib.use('TkAgg') # revert above
+#matplotlib.use('Agg')
+matplotlib.use('TkAgg') # revert above
 import matplotlib.pyplot as plt
 import os
 import numpy as np
@@ -182,9 +182,11 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
-dir_paths =  glob.glob('../T/P300/B60/A60/T*')
+#dir_paths =  glob.glob('../T/P300/B60/A60/T*')
+dir_paths =  glob.glob('../T/P300/B20/A60/T15*')
+
 #dir_paths = dir_paths[-8:]
-dir_paths = [dir_paths[-7]]
+#dir_paths = [dir_paths[-7]]
 #dir_paths = dir_paths[-8:-4]
 
 #dir_paths =  glob.glob('../T/P*/B50/A*/T*')
@@ -218,7 +220,7 @@ unit_specific_energy = (unit_length/unit_time)**2
 # otpions
 testing = True
 plotting_on = False
-data_save = True
+data_save = False
 # NOTE: if name already there it will append to file
 max_h_data_fname = 'max_h_data_sj_p2.dat'
 big_data_fname = 'big_data_set_sj_p2.dat'
@@ -279,8 +281,10 @@ for path in dir_paths:
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'_'+path_parts[3]+'_*.vtu')
     # skip first step as no value
 #    full_paths = full_paths[1:]
-    full_paths = full_paths[132:135]
-#    full_paths = full_paths[15:18]
+
+    # testing breaks in code
+    full_paths = full_paths[73:78]
+#    full_paths = full_paths[36:40]
    
     sub_data_1 = []
     sub_data_2 = []
@@ -440,11 +444,13 @@ for path in dir_paths:
                 central_sides = []
                 for c_pts in hi_locs:
                     cjet_sides_index1, cjet_sides_index2, cval1, cval2 = side_pts_of_jet_dt(sorted_data, c_pts, DOMIAN, shape)
-                    central_sides.append((cjet_sides_index1,cjet_sides_index2))
-                    central_pts.append(np.add(cjet_sides_index1,cjet_sides_index2)//2)
-#                # add top position (not need due to hi_loc correction)
-                # remember to remove
-#                central_pts.append(np.asarray(jet_top_pixel_pos))
+                    if cjet_sides_index1 is not None:
+                        central_sides.append((cjet_sides_index1,cjet_sides_index2))
+                        central_pts.append(np.add(cjet_sides_index1,cjet_sides_index2)//2)
+                    else:
+                        print('Cenrtal axis pt missed')
+                        continue
+
                 central_pts = np.reshape(central_pts,np.shape(central_pts))
                 if testing == True:
     #                        plt.plot(central_pts[:,0], central_pts[:,1])
@@ -512,6 +518,8 @@ for path in dir_paths:
                 # method 3: top angles
                 if method_3 == True:
                     for hi_indx in range(1,int(np.floor(height_y))+1):
+                        current_x_pad_dex_size = x_pad_dex_size
+                        current_y_pad_dex_size = y_pad_dex_size
                         # +1 matches it with central_pts as 1 element is lost with dis calc
                         c_index = np.argmin(abs(p2p_dis_array[:,0]-hi_indx))+1
                         # if value fall at top of arry angle cant be calc
@@ -523,81 +531,98 @@ for path in dir_paths:
                             m_grad = 1/np.tan(perp_avg_tilt)
         #                   current method
                             const = central_pts[c_index][1]-m_grad*central_pts[c_index][0]
-                            x_search = (central_sides[c_index][0][0]-x_pad_dex_size,
-                                        central_sides[c_index][1][0]+x_pad_dex_size)
-                            y_search = (central_sides[c_index][0][1]-y_pad_dex_size,
-                                        central_sides[c_index][0][1]+y_pad_dex_size)
-                            x_slit = np.linspace(x_search[0],x_search[1],50)
-                            x_slit_phy = (x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf
-                            line = m_grad*x_slit+const
-                            line_phy = line*physical_grid_size_xy[1]
-                            xi = np.array(list(zip(line_phy, x_slit_phy)))
-                            # grid in phy units
-                            points = np.array((y_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten(),
-                                               x_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten())).T*cm_to_Mm
-                            values = (bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],
-                                                  y_search[0]:y_search[1]]).flatten()
+                            z_line_vale = [0]
+                            # while loop here
+                            while sum(z_line_vale) == 0:
+                                x_search = (central_sides[c_index][0][0]-current_x_pad_dex_size,
+                                            central_sides[c_index][1][0]+current_x_pad_dex_size)
+                                y_search = (central_sides[c_index][0][1]-current_y_pad_dex_size,
+                                            central_sides[c_index][0][1]+current_y_pad_dex_size)
+                                x_slit = np.linspace(x_search[0],x_search[1],50)
+                                x_slit_phy = (x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf
+                                line = m_grad*x_slit+const
+                                line_phy = line*physical_grid_size_xy[1]
+                                xi = np.array(list(zip(line_phy, x_slit_phy)))
+                                # grid in phy units
+                                points = np.array((y_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten(),
+                                                   x_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten())).T*cm_to_Mm
+                                values = (bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],
+                                                      y_search[0]:y_search[1]]).flatten()
+        
+                                z_line_vale = griddata(points, values, xi)
+    #                            z_line_vale = z_line_vale[~np.isnan(z_line_vale)]
+                                z_line_vale[np.where(np.isnan(z_line_vale))]=0
+                                if sum(z_line_vale) == 0:
+                                    current_x_pad_dex_size += 5 
+                                    current_y_pad_dex_size += 5
+                                    continue
+                                z_line_vale = np.where(z_line_vale<1,0,1)
+                                z_line_switches = np.diff(z_line_vale)
+                                # make sure only 2 pts are sleceted
+                                LR_edge_fix = np.argwhere(abs(z_line_switches)>0)
+                                LR_edge_fix_index = [np.min(LR_edge_fix),np.max(LR_edge_fix)]
+                                spatial_locs_widths = xi[LR_edge_fix_index]
+                                # old method resultes in > 2pts
+    #                            z_line_side_indexs = np.argwhere(abs(z_line_switches)>0)
+    #                            spatial_locs_widths = xi[z_line_side_indexs][:,0]
     
-                            z_line_vale = griddata(points, values, xi)
-#                            z_line_vale = z_line_vale[~np.isnan(z_line_vale)]
-                            z_line_vale[np.where(np.isnan(z_line_vale))]=0
-                            z_line_vale = np.where(z_line_vale<1,0,1)
-                            z_line_switches = np.diff(z_line_vale)
-                            # make sure only 2 pts are sleceted
-                            LR_edge_fix = np.argwhere(abs(z_line_switches)>0)
-                            LR_edge_fix_index = [np.min(LR_edge_fix),np.max(LR_edge_fix)]
-                            spatial_locs_widths = xi[LR_edge_fix_index]
-                            # old method resultes in > 2pts
-#                            z_line_side_indexs = np.argwhere(abs(z_line_switches)>0)
-#                            spatial_locs_widths = xi[z_line_side_indexs][:,0]
-
-
-                            # xi = [[y1,x1],[y2,x2]]
-                            # Will be give Mm
-                            tilt_widths = distance_cal(spatial_locs_widths[0],
-                                                       spatial_locs_widths[1])
-                            data_c = np.asarray((float(path_parts[0][1:]),
-                                                 float(path_parts[1][1:]),
-                                                 float(path_parts[2][1:]),
-                                                 float(path_parts[3][1:]),
-                                                 p2p_dis_array[c_index][0],
-                                          p2p_dis_array[c_index][-1],
-                                          tilt_widths, physical_time))
-                            if data_save == True:
-                                df_dc = pd.DataFrame([data_c],
-                                                     columns=['Driver time [s]',
-                                                              'Magnetic field strength [B]',
-                                                              'Amplitude [km/s]',
-                                                              'Tilt angle [degree]',
-                                                              'Jet length [Mm]',
-                                                              'Jet height [Mm]',
-                                                              'Jet width [Mm]',
-                                                              'Time [s]'])
-                                if data_c_first == True:
-            #                        print('writting')
-                                    data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
-                                    Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
-                                    df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name, 
-                                                 index = False, columns=['Driver time [s]',
-                                                                         'Magnetic field strength [B]',
-                                                                         'Amplitude [km/s]',
-                                                                         'Tilt angle [degree]',
-                                                                         'Jet length [Mm]',
-                                                                         'Jet height [Mm]',
-                                                                         'Jet width [Mm]',
-                                                                         'Time [s]'])
-                                    data_c_first = False
-                                else:
-                                    df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
-                                                 mode='a', index = False, header=None)                            
-                            if testing == True:
-                                # Physical grid checking
-    #                            cmap = 'gray'
-                                plt.plot(x_slit_phy,line_phy, 'g-', zorder=1)
-                                plt.scatter(spatial_locs_widths[:,1:],spatial_locs_widths[:,:-1], color='red', marker='s', zorder=2)
-    #                            plt.plot((x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,line*physical_grid_size_xy[1], 'g-o')
-    #                            plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-    #                            plt.show()       
+    
+                                # xi = [[y1,x1],[y2,x2]]
+                                # Will be give Mm
+                                tilt_widths = distance_cal(spatial_locs_widths[0],
+                                                           spatial_locs_widths[1])
+                                data_c = np.asarray((float(path_parts[0][1:]),
+                                                     float(path_parts[1][1:]),
+                                                     float(path_parts[2][1:]),
+                                                     float(path_parts[3][1:]),
+                                                     p2p_dis_array[c_index][0],
+                                              p2p_dis_array[c_index][-1],
+                                              tilt_widths, physical_time))
+                                if data_save == True:
+                                    df_dc = pd.DataFrame([data_c],
+                                                         columns=['Driver time [s]',
+                                                                  'Magnetic field strength [B]',
+                                                                  'Amplitude [km/s]',
+                                                                  'Tilt angle [degree]',
+                                                                  'Jet length [Mm]',
+                                                                  'Jet height [Mm]',
+                                                                  'Jet width [Mm]',
+                                                                  'Time [s]'])
+                                    if data_c_first == True:
+                #                        print('writting')
+                                        data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
+                                        Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
+                                        df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name, 
+                                                     index = False, columns=['Driver time [s]',
+                                                                             'Magnetic field strength [B]',
+                                                                             'Amplitude [km/s]',
+                                                                             'Tilt angle [degree]',
+                                                                             'Jet length [Mm]',
+                                                                             'Jet height [Mm]',
+                                                                             'Jet width [Mm]',
+                                                                             'Time [s]'])
+                                        data_c_first = False
+                                    else:
+                                        df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
+                                                     mode='a', index = False, header=None)                            
+                                if testing == True:
+                                    # Physical grid checking
+                                    plt.scatter(spatial_locs_widths[:,1:],spatial_locs_widths[:,:-1], color='red', marker='s', zorder=2)
+        #                            plt.plot((x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,line*physical_grid_size_xy[1], 'g-o')
+                                    cmap = 'gray'
+    #                                plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
+                                    plt.plot(x_slit_phy,line_phy, 'g-', zorder=1)
+                                    # test to purely size slice area
+                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]),
+                                                        cmap='cool', extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
+                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1], y_search[0]:y_search[1]]),
+                                                        cmap=cmap, extent = [(scan_range_x[0]+x_search[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,
+                                                                             (scan_range_x[0]+x_search[1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf, 
+                                                                             y_search[0]*physical_grid_size_xy[1],y_search[1]*physical_grid_size_xy[1]])
+    
+                                    plt.xlim(-4,4)
+                                    plt.ylim(0,8)
+                                    plt.show()       
 
         if testing == True:
             # testing
