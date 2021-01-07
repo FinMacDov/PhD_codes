@@ -169,7 +169,6 @@ def LoBf(xy_data):
         yline = func(xline, *popt)
         start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
         angle = angle_cal(start_pt, end_pt) 
-        print(x, y, start_pt, yline, end_pt, angle)
     return angle
     
 
@@ -462,9 +461,12 @@ for path in dir_paths:
                 central_sides = []
                 for c_pts in hi_locs:
                     cjet_sides_index1, cjet_sides_index2, cval1, cval2 = side_pts_of_jet_dt(sorted_data, c_pts, DOMIAN, shape)
-                    central_sides.append((cjet_sides_index1,cjet_sides_index2))
-                    central_pts.append(np.add(cjet_sides_index1,cjet_sides_index2)//2)
-#                # add top position (not need due to hi_loc correction)
+                    if cjet_sides_index1 is not None:
+                        central_sides.append((cjet_sides_index1,cjet_sides_index2))
+                        central_pts.append(np.add(cjet_sides_index1,cjet_sides_index2)//2)
+                    else:
+                        print('Cenrtal axis pt missed')
+                        continue#                # add top position (not need due to hi_loc correction)
                 # remember to remove
 #                central_pts.append(np.asarray(jet_top_pixel_pos))
                 central_pts = np.reshape(central_pts,np.shape(central_pts))
