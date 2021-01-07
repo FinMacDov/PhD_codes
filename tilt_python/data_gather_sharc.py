@@ -160,11 +160,16 @@ def LoBf(xy_data):
     # reutrns a linear line of best fit
     x =  xy_data[:,0]
     y =  xy_data[:,1]
-    xline = np.linspace(x[0],x[-1],100)
-    popt, pcov = curve_fit(func, x, y)
-    yline = func(xline, *popt)
-    start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
-    angle = angle_cal(start_pt, end_pt) 
+    # best fit will only return single val, crashin angle func
+    if min(x)-max(x) == 0:
+        angle=0
+    else:
+        xline = np.linspace(min(x),max(x),100)
+        popt, pcov = curve_fit(func, x, y)
+        yline = func(xline, *popt)
+        start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
+        angle = angle_cal(start_pt, end_pt) 
+        print(x, y, start_pt, yline, end_pt, angle)
     return angle
     
 
