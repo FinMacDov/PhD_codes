@@ -294,13 +294,9 @@ for path in dir_paths:
 #        print(item)
         path_numerics[j] = float(item[1:])
 
-    #old style
-#    full_paths = glob.glob(path+'/jet_'+path_parts[1]+'_'+path_parts[-1]+'_*.vtu')
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'_'+path_parts[3]+'_*.vtu')
     # skip first step as no value
     full_paths = full_paths[1:]
-#    full_paths = full_paths[:134]
-#    full_paths = full_paths[15:18]
    
     sub_data_1 = []
     sub_data_2 = []
@@ -547,7 +543,7 @@ for path in dir_paths:
                             # makes sure that more than 1 edge is detected
                             while_count = 0
                             while sum(np.abs(z_line_switches)) < 2:
-                                print(while_count)
+#                                print(while_count)
                                 while_count += 1
                                 # defines search region
                                 x_search = (central_sides[c_index][0][0]-current_x_pad_dex_size,
