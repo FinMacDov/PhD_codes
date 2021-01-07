@@ -185,6 +185,8 @@ path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #dir_paths =  glob.glob('../T/P300/B60/A60/T*')
 dir_paths =  glob.glob('../T/P300/B20/A60/T15*')
 
+#dir_paths =  glob.glob('../T/P300/B60/A60/T15*')
+
 #dir_paths = dir_paths[-8:]
 #dir_paths = [dir_paths[-7]]
 #dir_paths = dir_paths[-8:-4]
@@ -283,7 +285,7 @@ for path in dir_paths:
 #    full_paths = full_paths[1:]
 
     # testing breaks in code
-    full_paths = full_paths[73:78]
+    full_paths = full_paths[74:75]
 #    full_paths = full_paths[36:40]
    
     sub_data_1 = []
@@ -531,33 +533,45 @@ for path in dir_paths:
                             m_grad = 1/np.tan(perp_avg_tilt)
         #                   current method
                             const = central_pts[c_index][1]-m_grad*central_pts[c_index][0]
-                            z_line_vale = [0]
+                            z_line_switches = [0]
                             # while loop here
-                            while sum(z_line_vale) == 0:
+                            # makes sure that more than 1 edge is detected
+                            while_count = 0
+                            while sum(np.abs(z_line_switches)) < 2:
+                                print(while_count)
+                                while_count += 1
+                                # defines search region
                                 x_search = (central_sides[c_index][0][0]-current_x_pad_dex_size,
                                             central_sides[c_index][1][0]+current_x_pad_dex_size)
                                 y_search = (central_sides[c_index][0][1]-current_y_pad_dex_size,
                                             central_sides[c_index][0][1]+current_y_pad_dex_size)
-                                x_slit = np.linspace(x_search[0],x_search[1],50)
-                                x_slit_phy = (x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf
-                                line = m_grad*x_slit+const
-                                line_phy = line*physical_grid_size_xy[1]
-                                xi = np.array(list(zip(line_phy, x_slit_phy)))
                                 # grid in phy units
                                 points = np.array((y_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten(),
                                                    x_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten())).T*cm_to_Mm
                                 values = (bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],
                                                       y_search[0]:y_search[1]]).flatten()
-        
+
+                                line_dis_phy = np.sqrt(((x_search[0]-x_search[-1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf)**2+((y_search[0]-y_search[-1])*physical_grid_size_xy[1])**2)
+                                nb_pts_for_line =  int(line_dis_phy//0.05)
+                                x_slit = np.linspace(x_search[0],x_search[1],nb_pts_for_line)
+                                x_slit_phy = (x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf
+
+                                line = m_grad*x_slit+const
+                                line_phy = line*physical_grid_size_xy[1]
+                                xi = np.array(list(zip(line_phy, x_slit_phy)))
+
                                 z_line_vale = griddata(points, values, xi)
     #                            z_line_vale = z_line_vale[~np.isnan(z_line_vale)]
                                 z_line_vale[np.where(np.isnan(z_line_vale))]=0
-                                if sum(z_line_vale) == 0:
+                                z_line_vale = np.where(z_line_vale<1,0,1)
+                                z_line_switches = np.diff(z_line_vale)
+                                # expand search area                                
+                                if sum(np.abs(z_line_switches)) < 2:
+                                    print('while not broken', sum(np.abs(z_line_switches)))
                                     current_x_pad_dex_size += 5 
                                     current_y_pad_dex_size += 5
                                     continue
-                                z_line_vale = np.where(z_line_vale<1,0,1)
-                                z_line_switches = np.diff(z_line_vale)
+                                print('while will be broken', sum(np.abs(z_line_switches)))
                                 # make sure only 2 pts are sleceted
                                 LR_edge_fix = np.argwhere(abs(z_line_switches)>0)
                                 LR_edge_fix_index = [np.min(LR_edge_fix),np.max(LR_edge_fix)]
@@ -605,14 +619,19 @@ for path in dir_paths:
                                     else:
                                         df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
                                                      mode='a', index = False, header=None)                            
+
                                 if testing == True:
                                     # Physical grid checking
-                                    plt.scatter(spatial_locs_widths[:,1:],spatial_locs_widths[:,:-1], color='red', marker='s', zorder=2)
+                                    # Issue with grid aligment due to how yt written data, most likely cause by the sterech grids. 
+                                    # width are correctly measure but are shift leftward due to difference in physical value for index pts of the grid and line
+                                    extra_cf = (x_grid0[:,0][scan_range_x[0]+x_search[0]])*cm_to_Mm-min(x_slit_phy)
+                                    plt.scatter(spatial_locs_widths[:,1:]-extra_cf,spatial_locs_widths[:,:-1], color='red', marker='s', zorder=2)
         #                            plt.plot((x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,line*physical_grid_size_xy[1], 'g-o')
                                     cmap = 'gray'
     #                                plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-                                    plt.plot(x_slit_phy,line_phy, 'g-', zorder=1)
+#                                    plt.plot(x_slit_phy,line_phy, 'g-', zorder=1)
                                     # test to purely size slice area
+                                    plt.scatter(x_slit_phy-extra_cf,line_phy, zorder=1)
                                     plt.imshow(np.rot90(bin_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]),
                                                         cmap='cool', extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
                                     plt.imshow(np.rot90(bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1], y_search[0]:y_search[1]]),
@@ -620,8 +639,8 @@ for path in dir_paths:
                                                                              (scan_range_x[0]+x_search[1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf, 
                                                                              y_search[0]*physical_grid_size_xy[1],y_search[1]*physical_grid_size_xy[1]])
     
-                                    plt.xlim(-4,4)
-                                    plt.ylim(0,8)
+#                                    plt.xlim(-4,4)
+#                                    plt.ylim(0,8)
                                     plt.show()       
 
         if testing == True:
