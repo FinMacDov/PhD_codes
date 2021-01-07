@@ -165,18 +165,6 @@ def LoBf(xy_data):
     angle = angle_cal(start_pt, end_pt) 
     return angle
 
-#    # A & B are (x_n,y_n)
-#    Y1 = max(A[1],B[1])
-#    Y2 = min(A[1],B[1])
-#    x1, x2 = A[0], B[0]
-#    m = A-B
-#    if m[1]/m[0] < 0:
-#        theta = -np.arccos((Y1-Y2)/(np.sqrt((x1-x2)**2+(Y1-Y2)**2)))+2*np.pi
-#    else:
-#        theta = np.arccos((Y1-Y2)/(np.sqrt((x1-x2)**2+(Y1-Y2)**2)))
-#    return theta
-
-
 def vec_angle(A,B,C):
     a = B-A
     b = C-B
@@ -665,11 +653,11 @@ for path in dir_paths:
                                 z_line_switches = np.diff(z_line_vale)
                                 # expand search area                                
                                 if sum(np.abs(z_line_switches)) < 2:
-                                    print('while not broken', sum(np.abs(z_line_switches)))
+#                                    print('while not broken', sum(np.abs(z_line_switches)))
                                     current_x_pad_dex_size += 5 
                                     current_y_pad_dex_size += 5
                                     continue
-                                print('while will be broken', sum(np.abs(z_line_switches)))
+#                                print('while will be broken', sum(np.abs(z_line_switches)))
                                 # make sure only 2 pts are sleceted
                                 LR_edge_fix = np.argwhere(abs(z_line_switches)>0)
                                 LR_edge_fix_index = [np.min(LR_edge_fix),np.max(LR_edge_fix)]
