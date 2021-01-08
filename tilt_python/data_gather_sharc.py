@@ -244,7 +244,7 @@ unit_specific_energy = (unit_length/unit_time)**2
 # otpions
 testing = True
 plotting_on = False
-data_save = False
+data_save = True
 # NOTE: if name already there it will append to file
 max_h_data_fname = code_root + '/' + jet_fname + '/max_h_data_sj_p2.dat'
 big_data_fname = code_root + '/'+jet_fname + '/big_data_set_sj_p2.dat'
@@ -263,7 +263,7 @@ method_1 = False
 method_2 = False
 # chosen method
 method_3 = True
-method_4 = True
+method_4 = False
 pts_of_influence = 3 # need to be moved but here for convenice
 x_pad = 1/2 #Mm
 y_pad = 0.75/2 # Mm
@@ -636,6 +636,7 @@ for path in dir_paths:
                                                    x_grid0[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],y_search[0]:y_search[1]].flatten())).T*cm_to_Mm
                                 values = (bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1],
                                                       y_search[0]:y_search[1]]).flatten()
+                                line_dis_phy = np.sqrt(((x_search[0]-x_search[-1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf)**2+((y_search[0]-y_search[-1])*physical_grid_size_xy[1])**2)
                                 nb_pts_for_line =  int(line_dis_phy//0.05)
                                 x_slit = np.linspace(x_search[0],x_search[1], nb_pts_for_line)
                                 x_slit_phy = (x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf
