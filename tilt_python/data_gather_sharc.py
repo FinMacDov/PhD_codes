@@ -162,13 +162,18 @@ def LoBf(xy_data):
     y =  xy_data[:,1]
     # best fit will only return single val, crashin angle func
     if min(x)-max(x) == 0:
-        angle=0
+        angle = 0
     else:
         xline = np.linspace(min(x),max(x),100)
         popt, pcov = curve_fit(func, x, y)
         yline = func(xline, *popt)
-        start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
-        angle = angle_cal(start_pt, end_pt) 
+        if max(yline)-min(yline) < 1e-6:
+            angle = 0
+        else:
+            start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
+            angle = angle_cal(start_pt, end_pt) 
+#            print(x, y, yline, start_pt, end_pt)
+#        print('angle', angle)
     return angle
     
 
@@ -301,7 +306,7 @@ for path in dir_paths:
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'_'+path_parts[3]+'_*.vtu')
     # skip first step as no value
     full_paths = full_paths[1:]
-   
+#    full_paths = full_paths[24:25]
     sub_data_1 = []
     sub_data_2 = []
     physical_time = []
@@ -597,9 +602,9 @@ for path in dir_paths:
                                     # Issue with grid aligment due to how yt written data, most likely cause by the sterech grids. 
                                     # width are correctly measure but are shift leftward due to difference in physical value for index pts of the grid and line
                                     extra_cf = (x_grid0[:,0][scan_range_x[0]+x_search[0]])*cm_to_Mm-min(x_slit_phy)
-                                    plt.scatter(spatial_locs_widths[:,1:]-extra_cf,spatial_locs_widths[:,:-1], color='pink', marker='P', zorder=2)
+                                    plt.scatter(spatial_locs_widths[:,1:]-extra_cf,spatial_locs_widths[:,:-1], color='pink', marker='P', zorder=4)
                                     # test to purely size slice area
-                                    plt.plot(x_slit_phy-extra_cf,line_phy, 'c:', zorder=1)
+                                    plt.plot(x_slit_phy-extra_cf,line_phy, 'c:', zorder=2)
                 # ------------------------------------------------------
                 # method 3: top angles
                 if method_3 == True:
