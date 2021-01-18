@@ -158,11 +158,20 @@ def LoBf(xy_data):
     # reutrns a linear line of best fit
     x =  xy_data[:,0]
     y =  xy_data[:,1]
-    xline = np.linspace(x[0],x[-1],100)
-    popt, pcov = curve_fit(func, x, y)
-    yline = func(xline, *popt)
-    start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
-    angle = angle_cal(start_pt, end_pt) 
+    # best fit will only return single val, crashin angle func
+    if min(x)-max(x) == 0:
+        angle=0
+    else:
+        xline = np.linspace(min(x),max(x),100)
+        popt, pcov = curve_fit(func, x, y)
+        yline = func(xline, *popt)
+        if max(yline)-min(yline) < 1e-6:
+            angle = 0
+        else:
+            start_pt, end_pt = np.asarray((xline[0], yline[0])), np.asarray((xline[-1], yline[-1]))
+            angle = angle_cal(start_pt, end_pt) 
+#            print(x, y, yline, start_pt, end_pt)
+#        print('angle', angle)
     return angle
 
 def vec_angle(A,B,C):
@@ -199,7 +208,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
 #dir_paths =  glob.glob('../T/P300/B60/A60/T*')
-dir_paths =  glob.glob('../T/P300/B20/A60/T15*')
+dir_paths =  glob.glob('../T/P300/B80/A80/T5*')
 
 #dir_paths =  glob.glob('../T/P300/B60/A60/T15*')
 
@@ -302,7 +311,7 @@ for path in dir_paths:
 #    full_paths = full_paths[1:]
 
     # testing breaks in code
-    full_paths = full_paths[74:75]
+    full_paths = full_paths[24:25]
 #    full_paths = full_paths[36:40]
    
     sub_data_1 = []
@@ -601,7 +610,7 @@ for path in dir_paths:
                                     extra_cf = (x_grid0[:,0][scan_range_x[0]+x_search[0]])*cm_to_Mm-min(x_slit_phy)
                                     plt.scatter(spatial_locs_widths[:,1:]-extra_cf,spatial_locs_widths[:,:-1], color='pink', marker='P', zorder=2)
                                     # test to purely size slice area
-                                    plt.plot(x_slit_phy-extra_cf,line_phy, 'c:', zorder=1)
+                                    plt.plot(x_slit_phy-extra_cf,line_phy, 'c:', zorder=2)
     
                 # ------------------------------------------------------
                 # method 3: top angles

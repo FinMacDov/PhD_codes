@@ -26,16 +26,15 @@ out_extension='avi'
 #search_image_word = '/t_*/*den*'
 #search_file_word = 'jet_P300_B60_A60_T*'
 #movie_name = 'width_track_mov'
-movie_name = 'jet_tracking_check'
+movie_name = 'updated_tracking'
 search_image_word = '*'
-search_file_word = '*/'
+search_file_word = 'jet_P*_B*_A*_T*/'
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm'    
 # 2D
 #path_root = '/j/tilt_python/sharc_run/yt_images/'
 path_root = '/j/tilt_python/sharc_run/image_check/'
 file_paths = glob.glob(path_2_shared_drive+path_root+search_file_word)
-
 for file in file_paths:
     file_path = file+search_image_word
     if rename == True:
