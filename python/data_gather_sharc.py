@@ -149,6 +149,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 path_2_shared_drive = '/shared/mhd_jet1/User/smp16fm/j'    
 dir_paths = [os.getenv("given_path")]
+#dir_paths = ['/shared/mhd_jet1/User/smp16fm/j/B/P300/B60/A60']
 print(dir_paths)
 #dir_paths =  glob.glob(path_2_shared_drive+'/hdt/P*/B*/A*')
 #dir_paths =  glob.glob('../B/P*/B*/A*')
@@ -180,11 +181,11 @@ unit_mass = unit_density*unit_length**3
 unit_specific_energy = (unit_length/unit_time)**2
 
 # otpions
-testing = False
+testing = True
 
 plotting_on = False
 
-data_save = True
+data_save = False
 data_save_dir = path_2_shared_drive+'/python/hdt_alt/'
 td_plotting = True
 td_plot_root_folder =path_2_shared_drive+'/python/td_plots_data_sharc/'
@@ -371,17 +372,17 @@ for path in dir_paths:
         if testing == True:
             # testing
             cmap = 'gray'
-            plt.scatter((jet_top_pixel_pos[0]+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,jet_top_pixel_pos[1]*physical_grid_size_xy[1], s=40, color='red')
+            plt.scatter((jet_top_pixel_pos[0]+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,jet_top_pixel_pos[1]*physical_grid_size_xy[1], marker='^', s=40, color='yellow')
             # image
 #            plt.imshow(sorted_data, cmap=cmap)
             plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-            plt.xlim(-1.5,1.5)
+            plt.xlim(-1.0,1.0)
             plt.ylim(0,8)
             plt.xlabel('x (Mm)')
             plt.ylabel('y (Mm)')
 #            plt.colorbar()
             plt.show()
-            plt.savefig('image_check/jet_P'+str(int(path_numerics[0]))+'_B' +
+            plt.savefig(path_2_shared_drive+'/python/image_check_sj/jet_P'+str(int(path_numerics[0]))+'_B' +
                         str(int(path_numerics[1])) +
                         'A_' + str(int(path_numerics[2])) +
                         'T_'+str(round(physical_time)) + '.png',

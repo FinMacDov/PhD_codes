@@ -1,7 +1,7 @@
 import sys
 import matplotlib
-#matplotlib.use('Agg')
-matplotlib.use('TkAgg') # revert above
+matplotlib.use('Agg')
+#matplotlib.use('TkAgg') # revert above
 import matplotlib.pyplot as plt
 import os
 import numpy as np
@@ -148,7 +148,8 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
-dir_paths =  glob.glob('../hdt/P*/B*/A*')
+#dir_paths =  glob.glob('../hdt/P*/B*/A*')
+dir_paths = [path_2_shared_drive+'/B/P300/B60/A60']
 partnb = 1
 #dir_paths =  glob.glob('../B/P*/B*/A*')
 #dir_paths =  glob.glob('../hight_dt/P*/B*/A*')
@@ -173,7 +174,8 @@ unit_pressure = 0.31754922400000002
 unit_magenticfield = 1.9976088799077159
 unit_time = unit_length/unit_velocity
 
-dt = unit_time/200
+#dt = unit_time/200
+dt = unit_time/20
 
 unit_mass = unit_density*unit_length**3
 unit_specific_energy = (unit_length/unit_time)**2
@@ -182,9 +184,9 @@ unit_specific_energy = (unit_length/unit_time)**2
 testing = True
 
 plotting_on = False
-
 data_save = False
-data_save_dir = 'hdt_alt/'
+#data_save_dir = 'hdt_alt/'
+data_save_dir = 'image_check_sj/'
 td_plotting = False
 td_plot_root_folder = 'td_plots_data/'
 td_file_name = 'data.csv'
@@ -216,7 +218,7 @@ data = []
 big_data_indexs = []
 #for path in dir_paths:
 #manual clipping
-for path in dir_paths[4:]:
+for path in dir_paths:
     FIRST = True
     h_check = 0
     path_parts = path.split('/')
@@ -228,16 +230,17 @@ for path in dir_paths[4:]:
 
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'*.vtu')
     # skip first step as no value
-#    full_paths = full_paths[1:]
-    # testing
-    full_paths = full_paths[102:104]
+    full_paths = full_paths[1:]
+#    # testing
+#    full_paths = full_paths[102:104]
    
     sub_data_1 = []
     sub_data_2 = []
     physical_time = []
 
     for ind, path_element in enumerate(full_paths):
-        Full_path = path_2_shared_drive + path_element[2:-8]
+#        Full_path = path_2_shared_drive + path_element[2:-8]
+        Full_path = path_2_shared_drive + path_element[-41:-8]
         # need to fix ti
         ti = int(path_element[-8:-4])           
         # Reading vtu file, allows to set custum grid poitns
@@ -372,20 +375,21 @@ for path in dir_paths[4:]:
         if testing == True:
             # testing
             cmap = 'gray'
-            plt.scatter((jet_top_pixel_pos[0]+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,jet_top_pixel_pos[1]*physical_grid_size_xy[1], s=40, color='red')
+            plt.scatter((jet_top_pixel_pos[0]+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,jet_top_pixel_pos[1]*physical_grid_size_xy[1], marker='^', s=40, color='yellow')
             # image
 #            plt.imshow(sorted_data, cmap=cmap)
             plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-            plt.xlim(-1.5,1.5)
+            plt.xlim(-1.0,1.0)
             plt.ylim(0,8)
+            plt.gca().set_aspect(0.5, adjustable='box')
             plt.xlabel('x (Mm)')
             plt.ylabel('y (Mm)')
 #            plt.colorbar()
-            plt.show()
-            plt.savefig('image_check/jet_P'+str(int(path_numerics[0]))+'_B' +
+#            plt.show()
+            plt.savefig('image_check_sj/jet_P'+str(int(path_numerics[0]))+'_B' +
                         str(int(path_numerics[1])) +
                         'A_' + str(int(path_numerics[2])) +
-                        'T_'+str(round(physical_time)) + '.png',
+                        'T_'+str(ti).zfill(4)+'.png',
                         format='png', dpi=500)
             plt.clf()
     # data frame to nest data in

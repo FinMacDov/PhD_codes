@@ -149,8 +149,11 @@ path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #path_2_files = ['/j/hdt/P300/B50/A40/']
 #file_names = ['jet_P300_B50A_40_']
 
-path_2_files = ['/j/B/P300/B60/A60/']
-file_names = ['jet_P300_B60A_60_']
+#path_2_files = ['/j/B/P300/B60/A60/']
+#file_names = ['jet_P300_B60A_60_']
+
+path_2_files = ['/j/B/P300/B60/A20/','/j/B/P300/B60/A80/','/j/B/P300/B20/A60/','/j/B/P300/B80/A60/','/j/B/P200/B60/A60/','/j/B/P50/B60/A60/']
+file_names = ['jet_P300_B60A_20_','jet_P300_B60A_80_','jet_P300_B20A_60_','jet_P300_B80A_60_','jet_P200_B60A_60_','jet_P50_B60A_60_']
 
 #Full_path = path_2_shared_drive + path_2_file + file_name
 
@@ -172,23 +175,23 @@ unit_pressure = 0.31754922400000002
 unit_magenticfield = 1.9976088799077159
 unit_time = unit_length/unit_velocity
 
-## lowdt
-#dt = unit_time/20
-#highdt
-dt = unit_time/200
+# lowdt
+dt = unit_time/20
+##highdt
+#dt = unit_time/200
 
 unit_mass = unit_density*unit_length**3
 unit_specific_energy = (unit_length/unit_time)**2
 
 #otpions
-save_fig =False
+save_fig =True
 contour = False
 dat_file = False
 vtu_file = True
 save_grid = False
 B_plots = True
 
-apex_and_width_pts = True
+apex_and_width_pts = False
 slice_height = 2e8
 peak_hi = 0
 
@@ -217,10 +220,20 @@ physical_grid_size_xy =  DOMIAN/np.array([xres,yres])*cm_to_Mm
 #t1 = 141
 #nb_steps = 28
 
-#highdt
 t0 = 0
-t1 = 1140
-nb_steps = 300
+t1 = 141
+nb_steps = 142
+
+#t0 = 1
+#t1 = 2
+#nb_steps = 1
+
+
+##highdt
+#t0 = 0
+#t1 = 1140
+#nb_steps = 300
+
 ## testing for side points
 #t0 = 68
 #t1 = 76
