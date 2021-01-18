@@ -221,7 +221,8 @@ for path in dir_paths:
                 Path(save_folder).mkdir(parents=True, exist_ok=True)
                 ds.current_time = yt.units.yt_array.YTQuantity(ti*dt*second)
 #                slc.annotate_timestamp(corner='upper_left', redshift=False, draw_inset_box=True)
-                slc.annotate_timestamp(redshift=False, draw_inset_box=True,coord_system='figure')
+#                slc.annotate_timestamp(redshift=False, draw_inset_box=True,coord_system='figure')
+                slc.annotate_title('Time: '+str(np.round(ds.current_time.value, 2))+' '+str(ds.current_time.units))            
                 slc.save(save_folder+'T_'+str(ti).zfill(4)+'_'+extra_name)
                 if Te_grad_plot == True:
                     dst = apt.load_vtkfile(ti, file=Full_path, type='vtu')
@@ -244,7 +245,7 @@ for path in dir_paths:
                     slc.set_log('gradient_magnitude_Te', False)
                     slc.set_axes_unit("m")
                     ds.current_time = yt.units.yt_array.YTQuantity(ti*dt*second)
-                    slc.annotate_timestamp(redshift=False, draw_inset_box=True,coord_system='figure')
+#                    slc.annotate_timestamp(redshift=False, draw_inset_box=True,coord_system='figure')
                     save_folder = root_save_dir+'t'+str(ti).zfill(4)+'/'
                     Path(save_folder).mkdir(parents=True, exist_ok=True)
                     slc.save(save_folder+'T_'+str(ti))
