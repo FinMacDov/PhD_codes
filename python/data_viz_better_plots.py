@@ -76,7 +76,7 @@ def ballistic_flight(v0, g, t):
 
 i = 0
 shuff = 0
-SMALL_SIZE = 24
+SMALL_SIZE = 40
 MEDIUM_SIZE = SMALL_SIZE+2
 BIGGER_SIZE = MEDIUM_SIZE+2
 
@@ -85,7 +85,7 @@ plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE-11)    # legend fontsize
+plt.rc('legend', fontsize=13)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 #path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
@@ -368,5 +368,5 @@ if plot_hmax_vs_dt == True:
     ax21.tick_params(axis='both', which='minor')
 
 #plt.tight_layout()
-plt.savefig('test_combine_image.png')
+plt.savefig('sj_paper/test_combine_image.png')
 plt.close()
