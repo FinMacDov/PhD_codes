@@ -105,7 +105,8 @@ data_save = False
 schlieren_values = True
 dynamic_schlieren_plot = False
 schlieren_plot = True
-extra_name = 'zoomed'
+#extra_name = 'zoomed'
+extra_name = ''
 path_2_data = '\data\max_delrho_dt.dat'
 yt_plot = True
 Te_grad_plot = False
@@ -124,7 +125,8 @@ if yt_plot == True:
     arr_sch = np.zeros((xres, yres, 1))
     bbox = np.array([[-2.5e4-shift_x_factor, 2.5e4-shift_x_factor], [0, 3e4], [-1, 1]])
 #    y_limit = 2e4
-    shift_factor = 4000 # km
+    shift_factor = 0 # km
+#    shift_factor = 4000 # km
 
 if schlieren_plot==True:
     pd_data = pd.read_pickle(path_2_data)
@@ -148,8 +150,9 @@ for path in dir_paths:
     root_save_dir = 'jet_'+path_parts[0]+'_'+path_parts[1]+'_'+path_parts[2]+'/'
     full_paths = glob.glob(path+'/jet_'+path_parts[0]+'_'+path_parts[1]+'*.vtu')
     # skip first step as no value
-    full_paths = full_paths[1:]
-    full_paths = [full_paths[51]]
+#    full_paths = full_paths[1:]
+#    full_paths = [full_paths[1]]
+#    full_paths = [full_paths[51]]
     
    
     sub_data_1 = []
@@ -208,11 +211,11 @@ for path in dir_paths:
                 ds = yt.load_uniform_grid(data, arr_sch.shape, length_unit="km",
                      bbox=bbox, nprocs=128)
                 ds.periodicity = (True, True, True)
-#                y_limit =  0.8e4 # km
-                y_limit =  0.2e4 # km
+                y_limit =  0.8e4 # km
+#                y_limit =  0.2e4 # km
                 slc = yt.SlicePlot(ds, "z", ['numerical_schlieren'], center=[0.0, y_limit/2+shift_factor, 0],
-                       width=((1e8, 'cm'), (y_limit*1e5, 'cm')),
-#                       width=((2.5e8, 'cm'), (y_limit*1e5, 'cm')),
+#                       width=((1e8, 'cm'), (y_limit*1e5, 'cm')),
+                       width=((2.5e8, 'cm'), (y_limit*1e5, 'cm')),
                        origin=(0, 0, 'domain'), fontsize=52)
                 slc.set_cmap('numerical_schlieren', 'gray')
                 slc.set_log('numerical_schlieren', False)
@@ -236,7 +239,7 @@ for path in dir_paths:
                     ds = yt.load_uniform_grid(data, arr_sch.shape, length_unit="km",
                                               bbox=bbox, nprocs=128)
                     ds.periodicity = (True, True, True)
-                    y_limit = 2e4
+#                    y_limit = 2e4
                     slc = yt.SlicePlot(ds, "z", ['gradient_magnitude_Te'],
                                        center=[0.0, y_limit/2+shift_factor, 0],
                                        width=((2.5e9, 'cm'), (y_limit*1e5, 'cm')),
