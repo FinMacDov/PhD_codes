@@ -207,8 +207,8 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
-#dir_paths =  glob.glob('../T/P300/B60/A60/T*')
-dir_paths =  glob.glob('../T/P300/B80/A80/T5*')
+dir_paths =  glob.glob('../T/P300/B60/A60/T30*')
+#dir_paths =  glob.glob('../T/P300/B80/A80/T5*')
 
 #dir_paths =  glob.glob('../T/P300/B60/A60/T15*')
 
@@ -265,7 +265,7 @@ method_1 = False
 method_2 = False
 # chosen method
 method_3 = True
-method_4 = True
+method_4 = False
 x_pad = 1/2 #Mm
 y_pad = 0.75/2 # Mm
 dummy_dis = 0
@@ -311,7 +311,7 @@ for path in dir_paths:
 #    full_paths = full_paths[1:]
 
     # testing breaks in code
-    full_paths = full_paths[24:25]
+    full_paths = full_paths[68:69]
 #    full_paths = full_paths[36:40]
    
     sub_data_1 = []
@@ -684,8 +684,11 @@ for path in dir_paths:
                                                      float(path_parts[2][1:]),
                                                      float(path_parts[3][1:]),
                                                      p2p_dis_array[c_index][0],
-                                              p2p_dis_array[c_index][-1],
-                                              tilt_widths, physical_time))
+                                                     p2p_dis_array[c_index][-1],
+                                                     tilt_widths,
+                                                     physical_time,
+                                                     p2p_dis_array[-1][0],
+                                                     p2p_dis_array[-1][-1]))
                                 if data_save == True:
                                     df_dc = pd.DataFrame([data_c],
                                                          columns=['Driver time [s]',
@@ -695,7 +698,9 @@ for path in dir_paths:
                                                                   'Jet length [Mm]',
                                                                   'Jet height [Mm]',
                                                                   'Jet width [Mm]',
-                                                                  'Time [s]'])
+                                                                  'Time [s]',
+                                                                  'Max len [Mm]',
+                                                                  'Max height [Mm]'])
                                     if data_c_first == True:
                 #                        print('writting')
                                         data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
@@ -708,7 +713,10 @@ for path in dir_paths:
                                                                              'Jet length [Mm]',
                                                                              'Jet height [Mm]',
                                                                              'Jet width [Mm]',
-                                                                             'Time [s]'])
+                                                                             'Time [s]', 
+                                                                             'Max len [Mm]',
+                                                                             'Max height [Mm]'])
+
                                         data_c_first = False
                                     else:
                                         df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
@@ -721,22 +729,24 @@ for path in dir_paths:
                                     extra_cf = (x_grid0[:,0][scan_range_x[0]+x_search[0]])*cm_to_Mm-min(x_slit_phy)
                                     plt.scatter(spatial_locs_widths[:,1:]-extra_cf,spatial_locs_widths[:,:-1], color='red', marker='s', zorder=2)
 #                                    plt.plot((x_slit+scan_range_x[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,line*physical_grid_size_xy[1], 'g-o')
-#                                    cmap = 'gray'
+                                    cmap = 'gray'
 #                                    plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
 #                                    plt.plot(x_slit_phy,line_phy, 'g-', zorder=1)
                                     # test to purely size slice area
                                     plt.plot(x_slit_phy-extra_cf,line_phy, 'g-', zorder=1)
-#                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]),
-#                                                        cmap='cool', extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-#                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1], y_search[0]:y_search[1]]),
-#                                                        cmap=cmap, extent = [(scan_range_x[0]+x_search[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,
-#                                                                             (scan_range_x[0]+x_search[1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf, 
-#                                                                             y_search[0]*physical_grid_size_xy[1],y_search[1]*physical_grid_size_xy[1]])
+                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]),
+                                                        cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
+                                    plt.imshow(np.rot90(bin_data[scan_range_x[0]+x_search[0]:scan_range_x[0]+x_search[1], y_search[0]:y_search[1]]),
+                                                        cmap='Spectral', extent = [(scan_range_x[0]+x_search[0])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf,
+                                                                             (scan_range_x[0]+x_search[1])*physical_grid_size_xy[0]-2.547205e+09*cm_to_Mm-cf, 
+                                                                             y_search[0]*physical_grid_size_xy[1],y_search[1]*physical_grid_size_xy[1]])
 #    
-#                                    plt.xlim(-4,4)
-#                                    plt.ylim(0,8)
-#                                    plt.show()       
-
+                                    plt.xlim(-1,1)
+                                    plt.ylim(0,2)
+                                    plt.xlabel('Y [Mm]')
+                                    plt.ylabel('X [Mm]')
+                                    plt.savefig('sharc_run/fig_for_paper/example_of_tilt_jet_code.png', dpi=200, bbox_inches='tight')
+                                    plt.show()       
         if testing == True:
             # testing
             cmap = 'gray'
@@ -744,7 +754,7 @@ for path in dir_paths:
             # image
 #            plt.imshow(sorted_data, cmap=cmap)
             plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-            plt.xlim(-1,2.5)
+            plt.xlim(-1,1)
 #            plt.xlim(-1,1)
             plt.ylim(0,8)
             plt.gca().set_aspect(0.5, adjustable='box')
