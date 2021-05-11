@@ -169,11 +169,19 @@ script_path = '/shared/mhd_jet1/User/smp16fm/j/python/animate_sub_plots_sharc.py
 ##tilt = ['0','5', '10', '15', '20']
 #tilt = ['25','30', '35', '40', '45', '50', '55', '60']
 
+## "standard jet" setup
+#time_driver = ['300']
+#bb2 = ['20', '40', '60', '80'] 
+#amplitude =  ['20','40', '60']
+#tilt = ['5','15']
+
 # "standard jet" setup
 time_driver = ['300']
 bb2 = ['20', '40', '60', '80'] 
 amplitude =  ['20','40', '60']
-tilt = ['5','15']
+tilt = ['0']
+
+
 
 ## v scan
 #time_driver = ['300']
