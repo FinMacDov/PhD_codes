@@ -76,24 +76,26 @@ def ballistic_flight(v0, g, t):
 
 i = 0
 shuff = 0
-SMALL_SIZE = 14
-MEDIUM_SIZE = 16
-BIGGER_SIZE = 18
+SMALL_SIZE = 32
+MEDIUM_SIZE = SMALL_SIZE+2
+BIGGER_SIZE = MEDIUM_SIZE+2
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE-2)    # legend fontsize
+plt.rc('legend', fontsize=SMALL_SIZE-4)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 #path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
 path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
 #dir_paths =  glob.glob('data/*')
+
 #data set for paper
 dir_paths =  glob.glob('data/run3/*')
-##dat srt for high dt
+
+#dat srt for high dt
 #dir_paths =  glob.glob('data/high_dt/*')
 # constants
 unit_length = 1e9  # cm
@@ -119,32 +121,34 @@ unit_magenticfield = 1.9976088799077159
 unit_time = unit_length/unit_velocity
 
 
-# I messed up time scaling on data collection
-TIME_CORRECTION_FACTOR = 10/unit_time
+## I messed up time scaling on data collection
+#TIME_CORRECTION_FACTOR = 10/unit_time
+# not needed for highdt
+TIME_CORRECTION_FACTOR = 20/unit_time
 
 unit_mass = unit_density*unit_length**3
 unit_specific_energy = (unit_length/unit_time)**2
 
 # options
 # IMPORTANT TO CHANGE dt
-dt = unit_time/20
-#dt = unit_time/200 # high dt
-plot_h_vs_t = True
+#dt = unit_time/20
+dt = unit_time/200 # high dt
+
+plot_h_vs_t = False
 plot_w_vs_t = False
-all_data = False # plotss all data as suppose to small selection 
+all_data = True # plotss all data as suppose to small selection 
 plot_error_bars = False
 plot_hmax_vs_B = False
-plot_hmax_vs_A = False
-power_law_fit = False
+plot_hmax_vs_A = True
+power_law_fit = True
 plot_hmax_vs_dt = False
 data_check = False
 interp_check = False # Doesnt work well enough for my purposes
 diff_check = False
 sf = [0.60, 0.55, 0.5, 0.5]
-plot_mean_w_vs_BAdt = False
+plot_mean_w_vs_BAdt = True
 test_balstic = False
-Decelleration_analysis = True
-
+Decelleration_analysis = False
 
 lw =  3# 2.5#  
 
@@ -173,7 +177,8 @@ plt.rc('lines', linewidth=lw)
 
 #list_of_indexs = [[20],[40],[60],[80]]
 
-list_of_indexs = [[60]]
+#list_of_indexs = [[60]]
+list_of_indexs =  big_data_set['idx']
 
 if diff_check == True:
      id_no = 42
@@ -268,8 +273,9 @@ if plot_h_vs_t == True:
         for idx_num, idx_name in enumerate(list_of_indexs):
             fig, ax = plt.subplots(figsize=(20,12))
             #ax = plt.gca()
-            idx_loc = [iloc for iloc, eye in enumerate(big_data_set['idx']) if sum(abs(eye[-1]-idx_name))==0]
-            idx_loc = [50] # fudge to make code run single case
+#            idx_loc = [iloc for iloc, eye in enumerate(big_data_set['idx']) if sum(abs(eye[-1]-idx_name))==0]
+            idx_loc = [iloc for iloc, eye in enumerate(big_data_set['idx']) if sum(abs(eye-idx_name))==0]
+#            idx_loc = [50] # fudge to make code run single case
             if data_check == True:
                 for iloc, eye in enumerate(big_data_set['idx']):
                     print(iloc,eye[0],idx_name,eye-idx_name,
@@ -340,19 +346,19 @@ if plot_h_vs_t == True:
                 ax.plot(data_x, data_y, color=colors[i], linestyle=styles_alt[j],
                          lw=lw+3, label=lab)
                 #for ballstic test, goes here
-            ax.legend(loc=1,fontsize=24)
-            ax.set_ylabel("maximum height [Mm]", fontsize=32)
-            ax.set_xlabel("time [s]", fontsize=32)
-            ax.tick_params(axis='both', which='major', labelsize=28)
-            ax.tick_params(axis='both', which='minor', labelsize=28)
+            ax.legend(loc=1)
+            ax.set_ylabel("maximum height [Mm]")
+            ax.set_xlabel("time [s]")
+            ax.tick_params(axis='both', which='major')
+            ax.tick_params(axis='both', which='minor')
             # doesnt work for pandas
 #            manager = plt.get_current_fig_manager()
 #            manager.resize(*manager.window.maxsize())
 
-            plt.gca().set_xlim(right=t_max+t_max*sf[idx_num])
-            plt.savefig('P'+str(big_data_set['idx'][idx][0])+ \
-                        '_B'+str(big_data_set['idx'][idx][1])+ \
-                        '_A'+str(big_data_set['idx'][idx][2])+'_BF.png')
+#            plt.gca().set_xlim(right=t_max+t_max*sf[idx_num])
+#            plt.savefig('P'+str(big_data_set['idx'][idx][0])+ \
+#                        '_B'+str(big_data_set['idx'][idx][1])+ \
+#                        '_A'+str(big_data_set['idx'][idx][2])+'_BF.png')
             plt.close()
         if Decelleration_analysis==True:
         # theorectical lines
@@ -366,14 +372,14 @@ if plot_h_vs_t == True:
                         label='Simulation data', color='red')
 #            plt.scatter(predicted_decell_array, vmax_array, 
 #                        marker = 'o', label='theoretical data')
-            plt.plot(predicted_decel_p50,vmax_scan, label='P=50s')
-            plt.plot(predicted_decel_p200,vmax_scan, label='P=200s')
-            plt.plot(predicted_decel_p300,vmax_scan, label='P=300s')
-            test_ax.legend(loc=4, fontsize=24)
-            test_ax.set_ylabel("maximum V [km s-1]", fontsize=32)
-            test_ax.set_xlabel("decelerations [m s-2]", fontsize=32)
-            test_ax.tick_params(axis='both', which='major', labelsize=28)
-            test_ax.tick_params(axis='both', which='minor', labelsize=28)
+            plt.plot(predicted_decel_p50,vmax_scan, label='Predicted trend P=50 s')
+            plt.plot(predicted_decel_p200,vmax_scan, label='Predicted trend P=200 s')
+            plt.plot(predicted_decel_p300,vmax_scan, label='Predicted trend P=300 s')
+            test_ax.legend(loc=4)
+            test_ax.set_ylabel("Maximum V [km s-1]")
+            test_ax.set_xlabel("Decelerations [m s-2]")
+            test_ax.tick_params(axis='both', which='major')
+            test_ax.tick_params(axis='both', which='minor')
             plt.show()
         # doesnt work for pandas
 
@@ -390,9 +396,9 @@ if plot_w_vs_t == True:
                         '/B'+str(big_data_set['idx'][idx][1])
         if not os.path.exists(w_path):
             os.makedirs(w_path)
-        lab = 'P=' + str(big_data_set['idx'][idx][0])+ \
-        ', B='+str(big_data_set['idx'][idx][1])+ \
-        ', A='+str(big_data_set['idx'][idx][2])
+        lab = 'P=' + str(big_data_set['idx'][idx][0]) + ' s' + \
+        ', B=' + str(big_data_set['idx'][idx][1]) + ' G' + \
+        ', A=' + str(big_data_set['idx'][idx][2]) + r' $\rm{km~s^{-1}}$'
         data_x, data_y = clipped_h_data_plotter(big_data_set, idx)
         data_y = []        
         t_max = max(data_x)*TIME_CORRECTION_FACTOR*dt
@@ -414,13 +420,14 @@ if plot_w_vs_t == True:
                 if i ==0: styles_alt = [styles_alt[-1]]+styles_alt[:-1]
                 h_index = np.argwhere(height_markers==hi)
                 ax.plot(jet_time[h_index], jet_width[h_index], color=colors[i], linestyle=styles_alt[j],
-                        lw=lw+3, label='height='+str(hi)+' Mm')
-            ax.legend(loc=1, fontsize=24)
-            ax.set_title(lab, fontsize=25)
-            ax.set_ylabel("jet width [km]", fontsize=32)
-            ax.set_xlabel("time [s]", fontsize=32)
-            ax.tick_params(axis='both', which='major', labelsize=28)
-            ax.tick_params(axis='both', which='minor', labelsize=28)
+                        lw=lw+3, label='Height='+str(hi)+' Mm')
+            ax.legend(ncol=2)
+            ax.set_title(lab)
+            ax.set_ylabel("Jet width [km]")
+#            ax.set_ylim(top=800)
+            ax.set_xlabel("Time [s]")
+            ax.tick_params(axis='both', which='major')
+            ax.tick_params(axis='both', which='minor')
             plt.savefig(w_path+'/P'+str(big_data_set['idx'][idx][0])+ \
                 '_B'+str(big_data_set['idx'][idx][1])+ \
                 '_A'+str(big_data_set['idx'][idx][2])+'_BF.png')
@@ -450,11 +457,11 @@ if plot_w_vs_t == True:
                                   c=colors[ii], style=styles[j])
                 if data_check == True:
                     print(sub_grp)
-        plt.legend(loc=1, fontsize=24)
-        ax.set_ylabel("mean width [km]", fontsize=28)
-        ax.set_xlabel('magnetic field strength [G]', fontsize=28)
-        ax.tick_params(axis='both', which='major', labelsize=28)
-        ax.tick_params(axis='both', which='minor', labelsize=28)
+        plt.legend(loc=1)
+        ax.set_ylabel("Mean width [km]")
+        ax.set_xlabel('B [G]')
+        ax.tick_params(axis='both', which='major')
+        ax.tick_params(axis='both', which='minor')
 #        plt.gca().set_xlim(right=115)
         plt.savefig(wmean_root_dir+'/mean_w_vs_B_BF.png')
         plt.close()
@@ -475,12 +482,13 @@ if plot_w_vs_t == True:
                                   c=colors[ii], style=styles[j], lw=lw)
                 if data_check == True:
                     print(sub_grp)
-        plt.legend(loc=1, fontsize=24)
-        ax.set_ylabel("mean width [km]", fontsize=28)
-        ax.set_xlabel('amplitude [km s-1]', fontsize=28)
-        ax.tick_params(axis='both', which='major', labelsize=28)
-        ax.tick_params(axis='both', which='minor', labelsize=28)
-        ax.set_xlim(right=92)
+        plt.legend(loc=1)
+        ax.set_ylabel("Mean width [km]")
+        ax.set_xlabel('A [km s-1]')
+        ax.tick_params(axis='both', which='major')
+        ax.tick_params(axis='both', which='minor')
+        ax.set_xlim(right=98)
+        ax.set_ylim(0, 1475)
         plt.savefig(wmean_root_dir+'/mean_w_vs_A_BF.png')
         plt.close()
 
@@ -500,17 +508,16 @@ if plot_w_vs_t == True:
                 if data_check == True:
                     print(sub_grp)
 #        plt.legend(bbox_to_anchor=(1.2,0.5), loc=7, fontsize=20)
-        plt.legend(loc=1, fontsize=24)
+#        plt.legend(loc=1)
 #        plt.tight_layout()
-        ax.set_ylabel("mean width [km]", fontsize=28)
-        ax.set_xlabel('driver time [s]', fontsize=28)
-        ax.tick_params(axis='both', which='major', labelsize=28)
-        ax.tick_params(axis='both', which='minor', labelsize=28)
-        ax.set_xlim(right=385)
+        ax.set_ylabel("Mean width [km]")
+        ax.set_xlabel('P [s]')
+        ax.tick_params(axis='both', which='major')
+        ax.tick_params(axis='both', which='minor')
+        ax.set_xlim(right=410)
+        ax.set_ylim(0,1500)
         plt.savefig(wmean_root_dir+'/mean_w_vs_P_BF.png')
         plt.close()
-
-
 
 if plot_hmax_vs_B == True:
     i=0
@@ -530,13 +537,16 @@ if plot_hmax_vs_B == True:
                               c=colors[ii], style=styles[j])
             if data_check == True:
                 print(sub_grp)
-    plt.gca().set_xlim(right=120)
-    plt.legend(loc=1, fontsize=18)
-    ax.set_ylabel("max height [Mm]", fontsize=28)
-    ax.set_xlabel('magnetic field strength [G]', fontsize=28)
-    ax.tick_params(axis='both', which='major', labelsize=28)
-    ax.tick_params(axis='both', which='minor', labelsize=28)
-    plt.show()
+    plt.gca().set_xlim(right=135)
+    plt.legend(loc=1,)
+    ax.set_ylabel("Max height [Mm]")
+    ax.set_xlabel('B [G]')
+    ax.tick_params(axis='both', which='major')
+    ax.tick_params(axis='both', which='minor')
+    plt.savefig('width_graphs/width_mean_graphs/image_fix/max_hv_B_BF.png')
+    plt.close()
+    
+
 
 if plot_hmax_vs_A == True:
     i = 0
@@ -556,7 +566,7 @@ if plot_hmax_vs_A == True:
             if data_check == True:
                 print(sub_grp)
     plt.legend(loc=2)
-    ax.set_ylabel("max height [Mm]")
+    ax.set_ylabel("Max height [Mm]")
     if power_law_fit == True:
         mean_h = []
         std_h = []
@@ -580,14 +590,16 @@ if plot_hmax_vs_A == True:
         plt.plot(v,ydatafit_log,'crimson',linewidth=lw, marker='o',
                  markersize=12, label='average')
         ax.fill_between(v, fit_up, fit_dw, alpha=.25)
-    plt.legend(fontsize=18)
-    ax.set_ylabel("max height [Mm]", fontsize=28)
-    ax.set_xlabel('amplitude [km s-1]', fontsize=28)
-    ax.tick_params(axis='both', which='major', labelsize=28)
-    ax.tick_params(axis='both', which='minor', labelsize=28)
-    test = powlaw(v, *popt_log) 
 
-    plt.show()
+    ax.set_ylabel("Max height [Mm]")
+    ax.set_xlabel('A [km s-1]')
+    ax.tick_params(axis='both', which='major')
+    ax.tick_params(axis='both', which='minor')
+#    test = powlaw(v, *popt_log) 
+    ax.set_xlim(left=10)
+    plt.legend(ncol=2)
+    plt.savefig('width_graphs/width_mean_graphs/image_fix/hmax_vs_A.png')
+    plt.close()
 
 if plot_hmax_vs_dt == True:
     fig, ax = plt.subplots(figsize=(20,12))
@@ -606,12 +618,12 @@ if plot_hmax_vs_dt == True:
             if data_check == True:
                 print(sub_grp)
 
-    ax.set_xlim(right=365)
-    plt.legend(loc=1, fontsize=18)
-    ax.set_ylabel("max height [Mm]", fontsize=28)
-    ax.set_xlabel('driver time [s]', fontsize=28)
-    ax.tick_params(axis='both', which='major', labelsize=28)
-    ax.tick_params(axis='both', which='minor', labelsize=28)
-    plt.show()
-    plt.savefig('hmax_vs_dt.png')
+#    ax.set_xlim(right=1000)
+    ax.set_ylim(top=17)
+    plt.legend(loc='upper left', bbox_to_anchor=(0, 1.15), ncol=4)
+    ax.set_ylabel("Max height [Mm]")
+    ax.set_xlabel('P [s]')
+    ax.tick_params(axis='both', which='major')
+    ax.tick_params(axis='both', which='minor')
+    plt.savefig('width_graphs/width_mean_graphs/image_fix/hmax_vs_dt.png')
     plt.close()
