@@ -11,7 +11,7 @@ indexs_of_interest = np.linspace(1,23,8,dtype=int)
 
 list_of_dirs = []
 t_folder_names = []
-sch_list =  np.asarray(glob.glob(path_2_shared_drive+'/j/python/'+name[-1]+'/*/T_*_Slice_z_numerical_schlieren.png'))
+sch_list =  np.asarray(glob.glob(path_2_shared_drive+'/j/python/'+name[-1]+'/*/T_*__Slice_z_numerical_schlieren.png'))
 
 delete_zoom_names = []
 for sch_idx, sch_name in enumerate(sch_list):
@@ -44,7 +44,8 @@ for i in range(len(t_folder_names[0])):
 
 for nb, item in enumerate(sch_list[index_of_matches]):
     sch_names = os.path.split(item)[-1]
-    output_names = (list_of_dirs[0][nb+1] + '/' + sch_names)
+#    output_names = (list_of_dirs[0][nb+1] + '/' + sch_names)
+    output_names = (list_of_dirs[0][nb] + '/' + sch_names)
     print(sch_list[index_of_matches][nb], output_names)
     shutil.copyfile(sch_list[index_of_matches][nb], output_names)    
 
