@@ -211,7 +211,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 #path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
 path_2_shared_drive = '/shared/mhd_jet1/User/smp16fm/j'
-code_root = path_2_shared_drive+'/tilt_python/sharc_run'
+code_root = path_2_shared_drive+'/tilt_python/sharc_run/new_pscan'
 
 dir_paths = [os.getenv("given_path")]
 jet_fname = os.getenv("given_jet_name")
@@ -244,7 +244,7 @@ unit_specific_energy = (unit_length/unit_time)**2
 # otpions
 testing = True
 plotting_on = False
-data_save = True
+data_save = True # !!Need to change for data runs!!
 # NOTE: if name already there it will append to file
 max_h_data_fname = code_root + '/' + jet_fname + '/max_h_data_sj_p2.dat'
 big_data_fname = code_root + '/'+jet_fname + '/big_data_set_sj_p2.dat'
@@ -674,35 +674,43 @@ for path in dir_paths:
                                                      float(path_parts[2][1:]),
                                                      float(path_parts[3][1:]),
                                                      p2p_dis_array[c_index][0],
-                                              p2p_dis_array[c_index][-1],
-                                              tilt_widths, physical_time))
+                                                     p2p_dis_array[c_index][-1],
+                                                     tilt_widths,
+                                                     physical_time,
+                                                     p2p_dis_array[-1][0],
+                                                     p2p_dis_array[-1][-1]))
                                 if data_save == True:
                                     df_dc = pd.DataFrame([data_c],
-                                                         columns=['driver time [s]',
-                                                                  'magnetic field strength [B]',
-                                                                  'amplitude [km/s]',
-                                                                  'tilt angle [degree]',
-                                                                  'jet length [Mm]',
-                                                                  'jet height [Mm]',
-                                                                  'jet width [Mm]',
-                                                                  'time [s]'])
+                                                         columns=['Driver time [s]',
+                                                                  'Magnetic field strength [B]',
+                                                                  'Amplitude [km/s]',
+                                                                  'Tilt angle [degree]',
+                                                                  'Jet length [Mm]',
+                                                                  'Jet height [Mm]',
+                                                                  'Jet width [Mm]',
+                                                                  'Time [s]',
+                                                                  'Max len [Mm]',
+                                                                  'Max height [Mm]'])
                                     if data_c_first == True:
                 #                        print('writting')
                                         data_c_save_path = c_data_root+full_paths[ind].split('/')[-1][:-9]
                                         Path(data_c_save_path).mkdir(parents=True, exist_ok=True)
                                         df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name, 
-                                                     index = False, columns=['driver time [s]',
-                                                                             'magnetic field strength [B]',
-                                                                             'amplitude [km/s]',
-                                                                             'tilt angle [degree]',
-                                                                             'jet length [Mm]',
-                                                                             'jet height [Mm]',
-                                                                             'jet width [Mm]',
-                                                                             'time [s]'])
+                                                     index = False, columns=['Driver time [s]',
+                                                                             'Magnetic field strength [B]',
+                                                                             'Amplitude [km/s]',
+                                                                             'Tilt angle [degree]',
+                                                                             'Jet length [Mm]',
+                                                                             'Jet height [Mm]',
+                                                                             'Jet width [Mm]',
+                                                                             'Time [s]', 
+                                                                             'Max len [Mm]',
+                                                                             'Max height [Mm]'])
+
                                         data_c_first = False
                                     else:
                                         df_dc.to_csv(data_c_save_path+'/'+full_paths[ind].split('/')[-1][:-9]+'_'+td_file_name,
-                                                     mode='a', index = False, header=None)                            
+                                                     mode='a', index = False, header=None)                                
                                 if testing == True:
                                     # Physical grid checking
         #                            cmap = 'gray'
@@ -719,7 +727,7 @@ for path in dir_paths:
             # image
 #            plt.imshow(sorted_data, cmap=cmap)
             plt.imshow(np.rot90(var_tr_data[scan_range_x[0]:scan_range_x[-1], scan_range_y[0]:scan_range_y[-1]]), cmap=cmap, extent = [x_extent[0], x_extent[1], y_extent[0],y_extent[1]])
-            plt.xlim(-1,2.5)
+            plt.xlim(-1.5,1.5)
             plt.ylim(0,8)
             plt.gca().set_aspect(0.5, adjustable='box')
             plt.xlabel('x (Mm)')
