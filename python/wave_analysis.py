@@ -38,51 +38,58 @@ def clipped_h_data_plotter(data_frame, index):
     return x[:sign_change_indx], h_data[:sign_change_indx]
 i = 0
 shuff = 0
-SMALL_SIZE = 14
-MEDIUM_SIZE = 16
-BIGGER_SIZE = 18
+SMALL_SIZE = 30
+MEDIUM_SIZE = SMALL_SIZE + 2
+BIGGER_SIZE = MEDIUM_SIZE + 2
 
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE-2)    # legend fontsize
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-# old data
+## old data
 #path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
 #dir_paths =  glob.glob('data/*')
 
 ## new data
-#path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'
-#data_save_dir = 'hdt/detrended_data'     
-
-
-# Newer data
 path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'
-data_save_dir = 'hdt/detrended_data_alt'     
+data_save_dir = 'hdt/detrended_data'     
+
+
+## Newer data
+#path_2_shared_drive = '/run/user/1000/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'
+#data_save_dir = 'hdt/detrended_data_alt'     
 
 # orig data run 
-#dir_paths =  glob.glob('data/high_dt/*')
+dir_paths =  glob.glob('data/high_dt/*')
 
 ## new data run
 #dir_paths =  glob.glob('hdt/*')
 
-# even newer data
-driver_time = '300'
-mag_str = '50'
-amplitude = '50'
-dir_paths = glob.glob('hdt_alt/jet_P' + driver_time +
-                      '_B' + mag_str +
-                      'A_'+amplitude + '_/*')
+## even newer data
+#driver_time = '300'
+#mag_str = '50'
+#amplitude = '50'
+#dir_paths = glob.glob('hdt_alt/jet_P' + driver_time +
+#                      '_B' + mag_str +
+#                      'A_'+amplitude + '_/*')
+
+## newer data
+#rise_window = [15]
+#rise_poly_n = [2]
+#
+#fall_window = [20]
+#fall_poly_n = [3]
 
 # newer data
 rise_window = [15]
 rise_poly_n = [2]
 
-fall_window = [20]
-fall_poly_n = [3]
+fall_window = [10]
+fall_poly_n = [2]
 
 # constants
 unit_length = 1e9  # cm
@@ -106,9 +113,9 @@ unit_time = unit_length/unit_velocity
 #TIME_CORRECTION_FACTOR = 10/unit_time
 
 #orig run
-#TIME_CORRECTION_FACTOR = 1e-1
+TIME_CORRECTION_FACTOR = 1e-1
 
-TIME_CORRECTION_FACTOR = 1
+#TIME_CORRECTION_FACTOR = 1
 #dt = unit_time/20
 dt = unit_time/200 # high dt
 
@@ -119,12 +126,11 @@ unit_specific_energy = (unit_length/unit_time)**2
 plot_w_vs_t = True
 testing = True
 CT_wavelet_code = False
-save_pd_cvs = True
+save_pd_cvs = False
 HoI = 2 #  Mm
 all_data = False # plots all data as suppose to small selection 
 sf = [0.40, 0.35, 0.3, 0.3]
 plot_mean_w_vs_BAdt = False
-
 
 lw =  3# 2.5#  
 
@@ -141,12 +147,12 @@ lw =  3# 2.5#
 #fall_poly_n = [2,   3,  2, 2,    3,   3]
 
 
-## how to read pickels
-#max_h_data_set = pd.read_pickle(dir_paths[1])
-#big_data_set = pd.read_pickle(dir_paths[0])
+# how to read pickels
+max_h_data_set = pd.read_pickle(dir_paths[1])
+big_data_set = pd.read_pickle(dir_paths[0])
 
-max_h_data_set = pd.read_pickle(dir_paths[-2])
-big_data_set = pd.read_pickle(dir_paths[-1])
+#max_h_data_set = pd.read_pickle(dir_paths[-2])
+#big_data_set = pd.read_pickle(dir_paths[-1])
 
 # max_h_data_set.plot(x ='amplitude [km s-1]', y='max height [Mm]', kind = 'scatter')
 # test = [ind for ind, i in enumerate(big_data_set['idx']) if sum(i-[50, 60, 20])==0]
@@ -184,9 +190,9 @@ if plot_w_vs_t == True:
         if not os.path.exists(w_path):
             os.makedirs(w_path)
         Path(data_save_dir_2).mkdir(parents=True, exist_ok=True)
-        lab = 'P=' + str(big_data_set['idx'][idx][0])+ \
-        ', B='+str(big_data_set['idx'][idx][1])+ \
-        ', A='+str(big_data_set['idx'][idx][2])
+        lab = 'P=' + str(big_data_set['idx'][idx][0]) + ' s' + \
+        ', B=' + str(big_data_set['idx'][idx][1]) + ' G' + \
+        ', A=' + str(big_data_set['idx'][idx][2]) + r' $\rm{km~s^{-1}}$'
         data_x, data_y = clipped_h_data_plotter(big_data_set, idx)
 #        data_y = []   
         data_x = data_x*dt
@@ -255,12 +261,12 @@ if plot_w_vs_t == True:
                     h_index = np.argwhere(height_markers==hi)
                     ax.plot(jet_time[h_index], jet_width[h_index], color=colors[ii], linestyle=styles_alt[jj],
                             lw=lw+3, label='height='+str(hi)+' Mm')
-                ax.legend(loc=1, fontsize=20)
-                ax.set_title(lab, fontsize=25)
-                ax.set_ylabel("jet width [km]", fontsize=25)
-                ax.set_xlabel("time [s]", fontsize=25)
-                ax.tick_params(axis='both', which='major', labelsize=18)
-                ax.tick_params(axis='both', which='minor', labelsize=18)
+                ax.legend(ncol=2)
+                ax.set_title(lab)
+                ax.set_ylabel("Jet width [km]")
+                ax.set_xlabel("Time [s]")
+                ax.tick_params(axis='both', which='major')
+                ax.tick_params(axis='both', which='minor')
     #            plt.savefig(w_path+'/P'+str(big_data_set['idx'][idx][0])+ \
     #                '_B'+str(big_data_set['idx'][idx][1])+ \
     #                '_A'+str(big_data_set['idx'][idx][2])+'.png')
@@ -302,7 +308,9 @@ if plot_w_vs_t == True:
                 fall_dtrend, = ax.plot(fall_time, ffit_fall, label='fall detrend')
                 # apex of jet
                 ax.axvline(max_h_time,color = 'k')
-                plt.title('raw data with detrend lines')
+#                plt.title('raw data with detrend lines')
+                ax.set_ylabel("Jet width [km]")
+                ax.set_xlabel("Time [s]")
                 plt.legend(handles=[rise_line, fall_line, rise_dtrend, fall_dtrend])
                 fig.savefig(data_save_dir_2+'/raw data_P'+str(big_data_set['idx'][idx][0])+
                             'B'+str(big_data_set['idx'][idx][1])+'A'+str(big_data_set['idx'][idx][2])+'.png')#,dpi=600)
