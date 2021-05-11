@@ -85,7 +85,7 @@ plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=13)    # legend fontsize
+plt.rc('legend', fontsize=18)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 #path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk,share=shared/mhd_jet1/User/smp16fm/j'    
@@ -243,7 +243,7 @@ if plot_w_vs_t == True:
                                   c=colors[ii], style=styles[j], lw=lw)
                 if data_check == True:
                     print(sub_grp)
-        ax32.legend(loc=1)
+        ax32.legend(loc=1, ncol=2)
         ax32.set_ylabel("Mean width [km]")
         ax32.set_xlabel('A [km s-1]')
         ax32.tick_params(axis='both', which='major')
@@ -263,12 +263,13 @@ if plot_w_vs_t == True:
                                   c=colors[ii], style=styles[j], lw=lw)
                 if data_check == True:
                     print(sub_grp)
-        ax22.legend(loc=1)
+        ax22.set_ylim(top=1400)
+        ax22.legend(loc=2, ncol=4)
         ax22.set_ylabel("Mean width [km]")
         ax22.set_xlabel('P [s]')
         ax22.tick_params(axis='both', which='major')
         ax22.tick_params(axis='both', which='minor')
-        ax22.set_xlim(right=350)
+#        ax22.set_xlim(right=350)
 
 
 
@@ -289,7 +290,7 @@ if plot_hmax_vs_B == True:
                               c=colors[ii], style=styles[j])
             if data_check == True:
                 print(sub_grp)
-    ax11.set_xlim(right=115)
+    ax11.set_xlim(20, 125)
     ax11.legend(loc=1)
     ax11.set_ylabel("Max height [Mm]")
     ax11.set_xlabel('B [G]')
@@ -312,7 +313,8 @@ if plot_hmax_vs_A == True:
                               c=colors[ii], style=styles[j], lw=lw)
             if data_check == True:
                 print(sub_grp)
-    ax31.legend(loc=2)
+    ax31.legend(loc=2, ncol=2)
+    ax31.set_xlim(left=12)
     ax31.set_ylabel("Max height [Mm]")
     ax31.set_xlabel("A [km s-1]")
     if power_law_fit == True:
@@ -360,8 +362,9 @@ if plot_hmax_vs_dt == True:
             if data_check == True:
                 print(sub_grp)
 
-    ax21.set_xlim(right=350)
-    ax21.legend(loc=1)
+#    ax21.set_xlim(50,350)
+    ax21.set_ylim(top=22)
+    ax21.legend(loc=9, ncol=4)
     ax21.set_ylabel("Max height [Mm]")
     ax21.set_xlabel('P [s]')
     ax21.tick_params(axis='both', which='major')
