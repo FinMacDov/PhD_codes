@@ -59,15 +59,15 @@ mono_image = True
 #SMALL_SIZE = 48
 #MEDIUM_SIZE = 50
 #BIGGER_SIZE = 52
-SMALL_SIZE = 20
-MEDIUM_SIZE = 26
-BIGGER_SIZE = 28
+SMALL_SIZE = 32
+MEDIUM_SIZE = SMALL_SIZE+2
+BIGGER_SIZE = MEDIUM_SIZE+2
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
 plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE-2)    # legend fontsize
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=MEDIUM_SIZE)  # fontsize of the figure titl
 
 
@@ -171,6 +171,8 @@ for HoI in heights:
     lab_loc = nrows*ncols-ncols
     grid2[lab_loc].set_xlabel("X [Mm]")
     grid2[lab_loc].set_ylabel("Height [Mm]")
+    grid2[lab_loc].locator_params(axis="x", nbins=5)
+    grid2[lab_loc].locator_params(axis="y", nbins=4)
 
     vmin_list = []
     vmax_list = []
@@ -212,7 +214,5 @@ for HoI in heights:
         t.patch.set_ec("none")
         t.patch.set_alpha(0.5)
 
-    F.savefig('test_td_plot_1Mm.png', bbox_inches='tight')
-
-    plt.draw()
-    plt.show()
+    F.savefig('sharc_run/fig_for_paper/td_plot_'+str(HoI)+'Mm.png', bbox_inches='tight')
+    plt.close()
