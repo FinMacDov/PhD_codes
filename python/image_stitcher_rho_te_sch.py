@@ -38,11 +38,11 @@ path_2_shared_drive = '/run/user/1001/gvfs/smb-share:server=uosfstore.shef.ac.uk
 #        'jet_P300_B60_A60_T50', 'jet_P300_B60_A60_T55',
 #        'jet_P300_B60_A60_T60']
 
-name = [ '*density', '*temp', '*sch']
+name = [ '*density', '*temp', '*__*']
 jet_save_name = 'rho_te_sch'
 nb_of_images_per_plot = 3
 img_root_folder = path_2_shared_drive + '/j/python/jet_P300_B60A_60_/'
-ti_number = np.arange(1,141)
+ti_number = np.arange(0,141)
 #ti_number = np.arange(0,3)
 save_dir = img_root_folder+'figs_for_sj_paper/'+jet_save_name+'/'
 Path_creator(save_dir).mkdir(parents=True, exist_ok=True)
